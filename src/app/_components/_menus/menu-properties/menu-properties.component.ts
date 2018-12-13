@@ -9,9 +9,16 @@ import { AppService } from '../../../_services/app.service';
 })
 export class MenuPropertiesComponent implements OnInit {
 
+  private _collapsed:boolean = true;
+
   constructor(private _appService:AppService) { }
 
   ngOnInit() {
+  }
+
+
+  private _toggleCollapse():void {
+    this._collapsed = !this._collapsed;
   }
 
 }

@@ -2,7 +2,7 @@
   <div class="menu-bar__brand">spritesheetr</div>
   <div class="menu-bar__items">
     <app-toggle-list-property-group text="file" [itemProperties]="_fileOptionsProps" (onChanged)="_callOption('file', $event)"></app-toggle-list-property-group>
-    <app-toggle-list-property-group text="edit" [itemProperties]="_editOptionsProps" (onChanged)="_callOption('edit', $event)"></app-toggle-list-property-group>
+    <app-toggle-list-property-group text="edit" disabled="true" [itemProperties]="_editOptionsProps" (onChanged)="_callOption('edit', $event)"></app-toggle-list-property-group>
     <app-toggle-list-group text="workspace" [items]="['Properties', 'Clear', 'Save', 'Load', '_separator', 'General', 'Animation']"></app-toggle-list-group>
     <app-toggle-list-group text="spritesheetr" [items]="['Upload Image(s)', 'Select All', 'Deselect All', '_separator', 'Pack Sprites']" *ngIf="_appService.StatesService.CurrentState == _appService.StatesService.STATE.Spritesheetr"></app-toggle-list-group>
     <app-toggle-list-group text="animatr" [items]="['Play', 'Pause', 'Clear']" *ngIf="_appService.StatesService.CurrentState == _appService.StatesService.STATE.Animatr"></app-toggle-list-group>

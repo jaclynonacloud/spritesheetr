@@ -1,8 +1,39 @@
 @import '../../../../globals';
 
+.collapser {
+    font-size: 0.7em;
+
+    &__icon {
+        float: right;
+        cursor: pointer;
+    }
+}
+
+.content {
+    width: 200px;
+}
+
+.content.collapsed {
+    clear: both;
+    width: max-content;
+    padding-top: 4px;
+
+    .group {
+        *:not(.title) {
+            display: none;
+        }
+        .title {
+            float: right;
+            padding: 3px 4px;
+            margin-bottom: 4px;
+            font-size: 0.8em;
+            border: solid 1px grey;
+        }
+    }
+}
+
 .menu-properties {
     background: white;
-    width: 200px;
     height: 100%;
     padding: 6px;
     border-left: solid 1px grey;
