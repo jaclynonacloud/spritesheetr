@@ -1,0 +1,11 @@
+@import '../../../../../globals';
+
+.toggle-list-group {
+    position: relative;
+    @include display-flex();
+    flex-flow: column;
+
+    &__wrapper {
+        position: relative;
+    }
+}

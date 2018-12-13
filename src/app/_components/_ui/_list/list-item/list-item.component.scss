@@ -1,0 +1,26 @@
+@import '../../../../../globals';
+
+.list-item {
+    background: $button-colour;
+    cursor: pointer;
+    width: 100%;
+    padding: 3px 14px 3px 8px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    border-top: solid 1px transparent;
+    border-bottom: solid 1px transparent;
+
+
+    &.separator {
+        padding: 0;
+        pointer-events: none;
+        border-bottom: dotted 1px grey;
+    }
+
+    &:hover {
+        background: $button-selected-colour;
+        border-top: solid 1px #b1b1b1;
+        border-bottom: solid 1px #b1b1b1;
+    }
+
+}

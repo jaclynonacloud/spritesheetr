@@ -1,0 +1,71 @@
+<div class="menu-properties">
+
+  <!-- <div [innerHTML]="_menusService.CurrentContextTitle" *ngIf="_menusService.CurrentContext"></div> -->
+
+  <!-- Sprite Menu -->
+  <div class="sprite" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Sprite">
+    <div>Sprite Menu</div>
+    <div>
+      Name
+    </div>
+    <div>
+      X, Y
+    </div>
+    <div>
+      Width, Height
+    </div>
+    <div>
+      Scale
+    </div>
+    
+  </div>
+  <!-- /Sprite Menu -->
+
+
+  <!-- Workarea Menu -->
+   <div class="workarea" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Workarea" (click)="_appService.MenusService.requestClear()">
+    <div>Workarea Menu</div>
+    <div class="half-input row">
+      <!-- <input type="number" [value]="_appService.Workspace.Workarea.Width" (change)="_appService.Workspace.Workarea.onChangeWidth($event)"> -->
+      <input type="number" [value]="_appService.Workspace.Workarea.Width" (change)="_appService.Workspace.Workarea.Width = $event.target.value">
+      <span>x</span>
+      <input type="number" [value]="_appService.Workspace.Workarea.Height" (change)="_appService.Workspace.Workarea.Height = $event.target.value">
+    </div>
+    <div class="row">
+      <input type="color" [value]="_appService.Workspace.Workarea.Colour" (change)="_appService.Workspace.Workarea.Colour = $event.target.value">
+    </div>
+    <div class="row">
+      <span>Use Transparency</span>
+      <label class="custom-checkbox">
+      <input class="custom-checkbox__input" type="checkbox" [checked]="_appService.Workspace.Workarea.Transparent" [value]="_appService.Workspace.Workarea.Transparent" (change)="_appService.Workspace.Workarea.Transparent = $event.target.checked">
+      <span class="custom-checkbox__element"></span>
+      </label>
+    </div>
+    <div class="row center">
+      <button>Autosize</button>
+    </div>
+    
+  </div>
+  <!-- /Workarea Menu -->
+
+  <!-- Zoom Menu -->
+  <div class="zoom" (click)="_appService.MenusService.requestClear()">
+    <div>Zoom Menu</div>
+    <div class="row center">
+      <button (click)="_appService.Workspace.Workarea.Scale = _appService.Workspace.Workarea.Scale * 2">Zoom In</button>
+    </div>
+    <div class="row center">
+      <button (click)="_appService.Workspace.Workarea.Scale = _appService.Workspace.Workarea.Scale / 2">Zoom Out</button>
+    </div>
+    <div class="row center">
+      <button (click)="_appService.Workspace.Workarea.Scale = 1">Reset</button>
+    </div>
+    <div class="row center">
+      <span>{{ _appService.Workspace.Scale * 100 }}%</span>
+    </div>
+
+  </div>
+  <!-- /Zoom Menu -->
+
+
+</div>

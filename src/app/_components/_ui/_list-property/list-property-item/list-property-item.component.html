@@ -1,0 +1,4 @@
+<div class="list-item" (click)="_onClicked($event)" [ngClass]="{'separator' : text == '_separator'}">
+  <div class="list-item__text" [innerHTML]="_getText()"></div>
+  <div class="list-item__property" [innerHTML]="property" *ngIf="text != '_separator'"></div>
+</div>

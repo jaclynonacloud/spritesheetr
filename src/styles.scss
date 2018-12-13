@@ -1,1 +1,75 @@
+@import 'globals';
+
 /* You can add global styles to this file, and also import other style files */
+html, body {
+    background: $background-colour;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+
+    @extend %Quicksand;
+}
+
+input, select, button {
+    @extend %Quicksand;
+}
+
+
+
+
+
+//inputs
+input, button {
+    background: $button-colour;
+    border: solid 1px $background-dark-colour;
+    user-select: none;
+    outline: none;
+
+    &:hover {
+        background: mix($alt-colour, white, 40);
+    }
+}
+
+button {
+    padding: 3px 8px;
+    width: 100%;
+    cursor: pointer;
+}
+
+%checkbox-after {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    content: '';
+    background: mix($alt-colour, white, 40);
+    width: 12px;
+    height: 12px;
+    box-sizing: border-box;
+}
+
+.custom-checkbox {
+    display: inline-flex;
+    cursor: pointer;
+
+    &__input {
+        display: none;
+
+        &:checked + .custom-checkbox__element::after {
+            @extend %checkbox-after;
+            background: mix($alt-colour, $background-dark-colour, 50);
+            border-color: grey;
+        }
+    }
+
+    &__element {
+        position: relative;
+        background: $button-colour;
+        width: 20px;
+        height: 20px;
+        border: solid 1px $background-dark-colour;
+
+        &:hover::after {
+            @extend %checkbox-after;
+        }
+    }
+}

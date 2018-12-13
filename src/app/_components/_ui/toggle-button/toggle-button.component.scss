@@ -1,0 +1,23 @@
+@import '../../../../globals';
+
+.toggle-button {
+    background: white;
+    padding: 3px 10px;
+    user-select: none;
+    cursor: pointer;
+    border: solid 1px transparent;
+    border-top: none;
+    border-bottom: none;
+    box-sizing: border-box;
+
+    &.toggled {
+        background: mix($button-selected-colour, white, 80);
+        border-color: grey;
+    }
+
+    &.disabled {
+        background: $button-colour;
+        color: mix($button-colour, black, 70);
+        pointer-events: none;
+    }
+}

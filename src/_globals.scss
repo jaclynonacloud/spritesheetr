@@ -1,0 +1,25 @@
+//fonts
+@import url('https://fonts.googleapis.com/css?family=Quicksand');
+
+%Quicksand {
+    font-family: 'Quicksand', sans-serif;
+}
+
+
+$background-colour: #d1d1d1;
+$background-dark-colour: #a5a5a5;
+$alt-colour: #8ac582;
+
+// ui
+$button-colour: #f0f0f0;
+$button-selected-colour: #dee6dd;
+
+$size-tablet: "screen and (max-width: 768px)";
+
+@mixin display-flex() {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+}

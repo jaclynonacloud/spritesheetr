@@ -1,0 +1,3 @@
+<div class="list-group" [ngClass]="{'show' : isOpen }">
+    <app-list-property-item [text]="item.title" [property]="item.property" (onClicked)="_onClickedPropItem($event)" *ngFor="let item of itemProperties"></app-list-property-item>
+  </div>
