@@ -1,4 +1,4 @@
-<div class="menu-properties">
+<div class="menu-properties" (click)="_onMenuClicked()">
 
   <div class="collapser">
     <span class="collapser__icon" [innerHTML]="_collapsed ? '&lt;&lt;' : '&gt;&gt;'" (click)="_toggleCollapse()"></span>
@@ -7,19 +7,29 @@
   <div class="content" [ngClass]="{'collapsed' : _collapsed}">
 
     <!-- Sprite Menu -->
-    <div class="group sprite" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Sprite">
+    <div class="group sprite" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Sprite" (click)="_onContextClick()">
       <div class="title">Sprite Menu</div>
-      <div>
-        Name
-      </div>
-      <div>
-        X, Y
-      </div>
-      <div>
-        Width, Height
-      </div>
-      <div>
-        Scale
+      <div *ngIf="_appService.Workspace.SelectedSprite">
+        <div class="row">
+          <label for="sprName">Name</label>
+          <input id="sprName" type="text" [value]="_appService.Workspace.SelectedSprite.name">
+        </div>
+        <div class="row">
+          <label for="sprX">X</label>
+          <input id="sprX" type="number" [value]="_appService.Workspace.SelectedSprite.x">
+          <label for="sprY">Y</label>
+          <input id="sprY" type="number" [value]="_appService.Workspace.SelectedSprite.y">
+        </div>
+        <div class="row">
+          <label for="sprWidth">Size</label>
+          <input id="sprWidth" type="number" [value]="_appService.Workspace.SelectedSprite.height">
+          <span class="pad">&#215;</span>
+          <input id="sprHeight" type="number" [value]="_appService.Workspace.SelectedSprite.width">
+        </div>
+
+        <div class="row center">
+          <button>Replace Image</button>
+        </div>        
       </div>
       
     </div>
@@ -27,12 +37,12 @@
 
 
     <!-- Workarea Menu -->
-      <div class="group workarea" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Workarea" (click)="_appService.MenusService.requestClear()">
+      <div class="group workarea" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Workarea" (click)="_onContextClick()">
       <div class="title">Workarea Menu</div>
       <div class="half-input row">
         <!-- <input type="number" [value]="_appService.Workspace.Workarea.Width" (change)="_appService.Workspace.Workarea.onChangeWidth($event)"> -->
         <input type="number" [value]="_appService.Workspace.Workarea.Width" (change)="_appService.Workspace.Workarea.Width = $event.target.value">
-        <span>x</span>
+        <span class="pad">&#215;</span>
         <input type="number" [value]="_appService.Workspace.Workarea.Height" (change)="_appService.Workspace.Workarea.Height = $event.target.value">
       </div>
       <div class="row">
@@ -53,7 +63,7 @@
     <!-- /Workarea Menu -->
 
     <!-- Zoom Menu -->
-    <div class="group zoom" (click)="_appService.MenusService.requestClear()">
+    <div class="group zoom" (click)="_onContextClick()">
       <div class="title">Zoom Menu</div>
       <div class="row center">
         <button (click)="_appService.Workspace.Workarea.Scale = _appService.Workspace.Workarea.Scale * 2">Zoom In</button>

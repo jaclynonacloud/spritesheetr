@@ -1,7 +1,10 @@
 import { Injectable, EventEmitter } from '@angular/core';
+import { MenuBarComponent } from '../_components/_menus/menu-bar/menu-bar.component';
 
 @Injectable()
 export class MenusService {
+
+  private _menuBar:MenuBarComponent;
 
   private _requestedContexts:string[];
   private _currentContext:string;
@@ -12,6 +15,10 @@ export class MenusService {
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   /*------------------------------------------- METHODS --------------------------*/
+  public addMenuBar(menuBar:MenuBarComponent):void {
+    this._menuBar = menuBar;
+  }
+
   public load():void {
     this._requestedContexts = [];
     this._currentContext = "";
@@ -34,7 +41,7 @@ export class MenusService {
   /*------------------------------------------- EVENTS ---------------------------*/
   private _onClickFinished():void {
     if(this._requestedContexts.length <= 0) return;
-    
+
     console.log("FINISHED CLICK");
     //change the context to the requested context
     //set to the most precedent context
@@ -58,6 +65,9 @@ export class MenusService {
     "Sprite": "sprite",
     "Workarea": "workarea"
   })};
+
+
+  public get MenuBar():MenuBarComponent { return this._menuBar;}
 
   public get CurrentContext():string { return this._currentContext; }
   public get CurrentContextTitle():string { return Object.keys(this.CONTEXT)[Object.values(this.CONTEXT).indexOf(this._currentContext)]; }

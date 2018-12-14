@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { ToggleButtonComponent } from '../../_ui/toggle-button/toggle-button.component';
 import { AppService } from '../../../_services/app.service';
 
@@ -8,6 +8,8 @@ import { AppService } from '../../../_services/app.service';
   styleUrls: ['./menu-bar.component.scss']
 })
 export class MenuBarComponent implements OnInit {
+
+  @ViewChild("openDialog", {read:ElementRef}) openDialog:ElementRef;
 
   //flags
   private _closeMenu:boolean = false;
@@ -23,22 +25,25 @@ export class MenuBarComponent implements OnInit {
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   ngOnInit() {
+    //pass this menu to menuservice
+    this._appService.MenusService.addMenuBar(this);
+
     //setup options
     //file
     this._fileOptions = [
-      { title:"New", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.New), action:this._appService.new },
-      { title:"Open", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Open), action:this._appService.open },
-      { title:"Save", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Save), action:this._appService.save },
+      { title:"New", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.New), action:this._appService.new.bind(this._appService) },
+      { title:"Open", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Open), action:this._appService.open.bind(this._appService) },
+      { title:"Save", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Save), action:this._appService.save.bind(this._appService) },
       { title:"_separator", action:null },
-      { title:"Export", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Export), action:this._appService.export },
+      { title:"Export", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Export), action:this._appService.export.bind(this._appService) },
       { title:"<i>Export Unique</i>", action:null }
     ];
     this._fileOptionsProps = this._getOptionProps(this._fileOptions);
 
     //edit
     this._editOptions = [
-      { title:"Undo", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Undo), action:this._appService.undo },
-      { title:"Redo", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Redo), action:this._appService.redo }
+      { title:"Undo", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Undo), action:this._appService.undo.bind(this._appService) },
+      { title:"Redo", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Redo), action:this._appService.redo.bind(this._appService) }
     ];
     this._editOptionsProps = this._getOptionProps(this._editOptions);
 
@@ -78,6 +83,7 @@ export class MenuBarComponent implements OnInit {
   /*------------------------------------------- EVENTS ---------------------------*/
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
+  public get OpenDialogElement():HTMLInputElement { return this.openDialog.nativeElement as HTMLInputElement; }
 
 }
 

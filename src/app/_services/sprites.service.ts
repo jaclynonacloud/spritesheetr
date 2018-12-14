@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { SpriteComponent } from '../_components/sprite/sprite.component';
 import { MenusService } from './menus.service';
 
@@ -6,6 +6,9 @@ import { MenusService } from './menus.service';
 export class SpritesService {
   private _sprites:SpriteComponent[];
   private _selected:SpriteComponent;
+
+  public onClickedSprite:EventEmitter<SpriteComponent> = new EventEmitter();
+  public onLoaded:EventEmitter<SpriteComponent> = new EventEmitter();
 
   constructor(private _menusService:MenusService) { }
 
@@ -24,11 +27,24 @@ export class SpritesService {
 
       sprite.setSelectable(true);
 
+      this.onLoaded.emit(sprite);
+
       // sprite.X = 300;
       // sprite.Y = 150;
   }
 
   //handle flags
+  public select(sprite:SpriteComponent):number {
+    if(this._selected != null) {
+      this._selected.deselect();
+    }
+
+    this._selected = sprite;
+    this._selected.select();
+
+    return this._sprites.indexOf(this._selected);
+  }
+
   public disableAll():void {
     this._sprites.forEach(spr => spr.setSelectable(false));
   }
@@ -48,12 +64,9 @@ export class SpritesService {
     console.log("I HAVE LISTENED");
     console.log(sprite);
 
-    if(this._selected != null) {
-      this._selected.deselect();
-    }
+    this.select(sprite);
 
-    this._selected = sprite;
-    this._selected.select();
+    this.onClickedSprite.emit(sprite);
 
     //open sprite context
     this._menusService.requestContext(this._menusService.CONTEXT.Sprite);

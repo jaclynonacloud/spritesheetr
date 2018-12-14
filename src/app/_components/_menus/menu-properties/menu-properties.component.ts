@@ -9,16 +9,27 @@ import { AppService } from '../../../_services/app.service';
 })
 export class MenuPropertiesComponent implements OnInit {
 
-  private _collapsed:boolean = true;
+  private _collapsed:boolean = false;
 
   constructor(private _appService:AppService) { }
 
   ngOnInit() {
   }
 
-
+  /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
+  /*------------------------------------------- METHODS --------------------------*/
   private _toggleCollapse():void {
     this._collapsed = !this._collapsed;
   }
+  /*------------------------------------------- EVENTS ---------------------------*/
+  private _onMenuClicked():void {
+    this._appService.MenusService.requestClear();
+  }
+
+  private _onContextClick():void {
+    if(this._collapsed) this._collapsed = false;
+  }
+  /*------------------------------------------- OVERRIDES ------------------------*/
+  /*------------------------------------------- GETTERS & SETTERS ----------------*/
 
 }

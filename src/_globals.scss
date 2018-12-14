@@ -4,6 +4,9 @@
 %Quicksand {
     font-family: 'Quicksand', sans-serif;
 }
+%Quicksand-Light {
+    font-family: 'Quicksand Light', sans-serif;
+}
 
 
 $background-colour: #d1d1d1;
@@ -22,4 +25,10 @@ $size-tablet: "screen and (max-width: 768px)";
     display: -ms-flexbox;
     display: -webkit-flex;
     display: flex;
+}
+
+
+
+.hide {
+    display: none !important;
 }

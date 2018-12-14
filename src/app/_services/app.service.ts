@@ -4,6 +4,8 @@ import { MenusService } from './menus.service';
 import { StatesService } from './states.service';
 import { MenuBarComponent } from '../_components/_menus/menu-bar/menu-bar.component';
 import { WorkspaceManager } from '../_managers/WorkspaceManager';
+import { LoadManager, IWorkspace } from '../_managers/LoadManager';
+import { SpriteComponent } from '../_components/sprite/sprite.component';
 
 @Injectable()
 export class AppService {
@@ -12,6 +14,7 @@ export class AppService {
 
   //create managers
   private _workspaceManager:WorkspaceManager;
+  private _loadManager:LoadManager;
 
   constructor(private _spritesService:SpritesService, private _menusService:MenusService, private _statesService:StatesService) { }
 
@@ -28,7 +31,10 @@ export class AppService {
 
     //setup managers
     this._workspaceManager = new WorkspaceManager();
+    this._loadManager = new LoadManager();
 
+    //TEST
+    this._loadManager.fetchFile("/assets/data/projects/example1.sheetr");
 
     this._statesService.setState(this._statesService.STATE.Spritesheetr);
     this._menusService.setContext(this._menusService.CONTEXT.Workarea);
@@ -36,6 +42,7 @@ export class AppService {
     //subscribe to events
     this._menusService.onContextChange.subscribe(this._onContextChange.bind(this), err => console.warn("There was an error changing context. " + err));
     this._workspaceManager.onScale.subscribe(this._onScale.bind(this), err => console.warn("Error scaling workarea. " + err));
+    this._loadManager.onLoaded.subscribe(this._onLoadedWorkspace.bind(this), err => console.log("Could not load workspace! " + err));
 
     document.addEventListener("keydown", this._onKeyDown.bind(this));
     document.addEventListener("keyup", this._onKeyUp.bind(this));
@@ -49,6 +56,48 @@ export class AppService {
     });
     return hasKeys;
   }
+
+
+
+  // Calls
+  public new():void {
+    console.log("Create NEW spritesheetr!");
+  }
+
+  public open():void {
+    console.log("Open spritesheetr file!");
+    this._menusService.MenuBar.OpenDialogElement.click();
+
+    //listen for change
+    const fileChange = (e:Event) => {
+      console.log("I HAVE CHANGED!");
+      this._loadManager.load(e);
+
+      //remove event listener
+      this._menusService.MenuBar.OpenDialogElement.removeEventListener("change", fileChange);
+
+      //clear the files
+      (e.target as HTMLInputElement).value = "";
+    }
+
+    //add event listener
+    this._menusService.MenuBar.OpenDialogElement.addEventListener("change", fileChange);
+  }
+
+  public save():void {
+    console.log("Save spritesheetr file!");
+  }
+
+  public export():void {
+    console.log("Open export spritesheetr dialog!");
+  }
+
+  public undo():void {
+    console.log("UNDO!");
+  }
+  public redo():void {
+    console.log("REDO!");
+  }
   /*------------------------------------------- EVENTS ---------------------------*/
   private _onContextChange(context:string):void {
     //change the menu
@@ -61,6 +110,28 @@ export class AppService {
   private _onScale(scale:number):void {
     //scale sprites
     this._spritesService.Sprites.forEach(spr => spr.callScale(scale));
+  }
+
+  private _onLoadedWorkspace(workspace:IWorkspace):void {
+    console.log("MAKE IT WORK!");
+    //add the sprites to the sprite manager
+    this._workspaceManager.addSprites(workspace.sprites);
+
+    this._spritesService.onLoaded.subscribe(this._onSpriteLoaded.bind(this));
+  }
+
+  private _onSpriteLoaded(sprite:SpriteComponent):void {
+    /*------------- TESTING ------------*/
+    
+    //grab first sprite
+    const index:number = this._spritesService.select(sprite);
+    this._workspaceManager.selectSprite(this._workspaceManager.Sprites[index]);
+
+
+    //load first sprite
+    this._menusService.setContext(this._menusService.CONTEXT.Sprite);
+
+    // this._spritesService.onLoaded.unsubscribe();
   }
 
 
@@ -96,29 +167,6 @@ export class AppService {
   }
 
 
-  // Calls
-  public new():void {
-    console.log("Create NEW spritesheetr!");
-  }
-
-  public open():void {
-    console.log("Open spritesheetr file!");
-  }
-
-  public save():void {
-    console.log("Save spritesheetr file!");
-  }
-
-  public export():void {
-    console.log("Open export spritesheetr dialog!");
-  }
-
-  public undo():void {
-    console.log("UNDO!");
-  }
-  public redo():void {
-    console.log("REDO!");
-  }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
   public get SpritesService():SpritesService { return this._spritesService; }

@@ -28,6 +28,7 @@
             margin-bottom: 4px;
             font-size: 0.8em;
             border: solid 1px grey;
+            cursor: pointer;
         }
     }
 }
@@ -45,10 +46,18 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 5px;
-    padding: 3px;
+    padding: 3px 0;
 
     &.center {
         justify-content: center;
+    }
+
+    label {
+        margin-right: 5px;
+        @extend %Quicksand-Light;
+    }
+    & label:not(first-child) {
+        margin-left: 5px;
     }
 }
 
@@ -57,12 +66,16 @@ input {
     width: 100%;
 }
 
+span {
+    flex: 0 1 auto;
+}
+span.pad {
+    padding: 0 3px;
+}
+
+
+
 .half-input {
     @include display-flex();
-    max-width: 100%;
-
-    span {
-        flex: 0 1 auto;
-        padding: 0 3px;
-    }
+    max-width: 100%;    
 }

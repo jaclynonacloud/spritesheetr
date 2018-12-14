@@ -1,6 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { SpritesService } from '../../_services/sprites.service';
 import { AppService } from '../../_services/app.service';
+import { ISprite } from '../../_managers/LoadManager';
 
 @Component({
   selector: 'app-sprite',
@@ -12,6 +13,8 @@ export class SpriteComponent implements OnInit {
   //used to gain access to the element
   @ViewChild("element", {read:ElementRef}) _element:ElementRef;
   @ViewChild("image", {read:ElementRef}) _image:ElementRef;
+
+  @Input() data:ISprite;
 
   private _x:number;
   private _y:number;
@@ -34,6 +37,8 @@ export class SpriteComponent implements OnInit {
       this._naturalWidth = (this._image.nativeElement as HTMLImageElement).naturalWidth;
       this._naturalHeight = (this._image.nativeElement as HTMLImageElement).naturalHeight;
       console.log(this._naturalWidth, this._naturalHeight);
+
+      this.callScale(1);
     });
 
   }

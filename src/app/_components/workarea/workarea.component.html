@@ -1,7 +1,5 @@
 <div class="workarea" #workarea>
 
-  <!-- test -->
-  <app-sprite></app-sprite>
-  <app-sprite></app-sprite>
+  <app-sprite [data]="spr" *ngFor="let spr of _appService.Workspace.Sprites"></app-sprite>
 
 </div>
