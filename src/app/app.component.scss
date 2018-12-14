@@ -17,5 +17,6 @@ app-menu-bar {
 app-workspace {
     flex: 1;
     max-width: 100vw;
-    height: calc(100% - 27px);
+    // height: calc(100% - 27px - 29px);
+    height: 100%;
 }

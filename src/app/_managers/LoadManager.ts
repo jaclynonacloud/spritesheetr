@@ -46,7 +46,7 @@ export class LoadManager {
 export interface IWorkspace {
     name:string;
     workWidth:number;
-    workHeigh:number;
+    workHeight:number;
     sprites:ISprite[];
 }
 export interface ISprite {

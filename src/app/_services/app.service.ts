@@ -30,7 +30,7 @@ export class AppService {
     this._statesService.load();
 
     //setup managers
-    this._workspaceManager = new WorkspaceManager();
+    this._workspaceManager = new WorkspaceManager(this);
     this._loadManager = new LoadManager();
 
     //TEST
@@ -114,24 +114,10 @@ export class AppService {
 
   private _onLoadedWorkspace(workspace:IWorkspace):void {
     console.log("MAKE IT WORK!");
+    this._workspaceManager.setTitle(workspace.name);
     //add the sprites to the sprite manager
     this._workspaceManager.addSprites(workspace.sprites);
-
-    this._spritesService.onLoaded.subscribe(this._onSpriteLoaded.bind(this));
-  }
-
-  private _onSpriteLoaded(sprite:SpriteComponent):void {
-    /*------------- TESTING ------------*/
-    
-    //grab first sprite
-    const index:number = this._spritesService.select(sprite);
-    this._workspaceManager.selectSprite(this._workspaceManager.Sprites[index]);
-
-
-    //load first sprite
-    this._menusService.setContext(this._menusService.CONTEXT.Sprite);
-
-    // this._spritesService.onLoaded.unsubscribe();
+    this._workspaceManager.resizeWorkarea(workspace.workWidth, workspace.workHeight);
   }
 
 

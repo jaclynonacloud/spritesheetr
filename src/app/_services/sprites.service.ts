@@ -14,9 +14,9 @@ export class SpritesService {
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   /*------------------------------------------- METHODS --------------------------*/
-    public load():void {
-      this._sprites = [];
-      this._selected = null;
+  public load():void {
+    this._sprites = [];
+    this._selected = null;
   }
 
   public addSprite(sprite:SpriteComponent):void {
@@ -67,9 +67,6 @@ export class SpritesService {
     this.select(sprite);
 
     this.onClickedSprite.emit(sprite);
-
-    //open sprite context
-    this._menusService.requestContext(this._menusService.CONTEXT.Sprite);
   }
   /*------------------------------------------- EVENTS ---------------------------*/
   /*------------------------------------------- OVERRIDES ------------------------*/
