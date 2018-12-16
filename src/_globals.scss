@@ -32,3 +32,55 @@ $size-tablet: "screen and (max-width: 768px)";
 .hide {
     display: none !important;
 }
+
+
+
+%button {
+    background: $button-colour;
+    border: solid 1px $background-dark-colour;
+    user-select: none;
+    outline: none;
+
+    &:hover {
+        background: mix($alt-colour, white, 40);
+    }
+}
+
+
+// image rendering
+.q--auto {
+    image-rendering: auto;
+    -ms-interpolation-mode: bicubic;
+}
+
+.q--crisp-edges {
+    image-rendering:optimizeSpeed;             /* Legal fallback */
+    image-rendering:-moz-crisp-edges;          /* Firefox        */
+    image-rendering:-o-crisp-edges;            /* Opera          */
+    image-rendering:-webkit-optimize-contrast; /* Safari         */
+    image-rendering:optimize-contrast;         /* CSS3 Proposed  */
+    image-rendering:crisp-edges;               /* CSS4 Proposed  */
+    -ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
+}
+
+
+.q--pixelated {
+    image-rendering:optimizeSpeed;             /* Legal fallback */
+    image-rendering:-moz-crisp-edges;          /* Firefox        */
+    image-rendering:-o-crisp-edges;            /* Opera          */
+    image-rendering:-webkit-optimize-contrast; /* Safari         */
+    image-rendering:optimize-contrast;         /* CSS3 Proposed  */
+    image-rendering:crisp-edges;               /* CSS4 Proposed  */
+    image-rendering:pixelated;                 /* CSS4 Proposed  */
+    -ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
+}
+
+
+.q--optimize-quality {
+    image-rendering:optimizeQuality;             /* Legal fallback */
+    image-rendering:-moz-optimizeQuality;          /* Firefox        */
+    image-rendering:-o-optimizeQuality;            /* Opera          */
+    image-rendering:-webkit-optimize-quality; /* Safari         */
+    image-rendering:optimizeQuality;                 /* CSS4 Proposed  */
+    -ms-interpolation-mode:bicubic;   /* IE8+           */
+}

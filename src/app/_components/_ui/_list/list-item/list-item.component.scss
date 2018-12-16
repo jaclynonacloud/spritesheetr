@@ -10,6 +10,16 @@
     border-top: solid 1px transparent;
     border-bottom: solid 1px transparent;
 
+    // STYLES
+    &.custom-button {
+        @extend %button;
+        background: $button-colour;
+        width: 100%;
+        padding: 3px 3px;
+        font-size: 0.85em;
+        border-color: transparent;
+    }
+
 
     &.separator {
         padding: 0;

@@ -1,13 +1,17 @@
 <div class="menu-toolbar">
-  menu-toolbar works!
-
   <!-- Spritesheetr -->
-  <div class="menu">
-    <div>Move Tool</div>
-    <div>Marquee Tool</div>
+  <div class="menu"  #element>
+    <!-- <div class="icon select" (click)="_appService.ToolsService.setTool(_appService.ToolsService.TOOL.Select)" title="Select | {{ _appService.getShortcut(['Shift', 'N']) }}"></div> -->
+    <div class="icon select" (click)="_appService.ToolsService.setTool(_appService.ToolsService.TOOL.Select)" title="Select [{{ _appService.getShortcut(_appService.shortcuts.Select) }}]"></div>
+    <div class="icon marquee" (click)="_appService.ToolsService.setTool(_appService.ToolsService.TOOL.Marquee)" title="Marquee Select [{{ _appService.getShortcut(_appService.shortcuts.Marquee) }}]"></div>
     <hr>
-    <div>Pan</div>
-    <div>Zoom</div>
+    <div class="icon move" (click)="_appService.ToolsService.setTool(_appService.ToolsService.TOOL.Move)" title="Move [{{ _appService.getShortcut(_appService.shortcuts.Move) }}]"></div>
+    <div class="icon scale" (click)="_appService.ToolsService.setTool(_appService.ToolsService.TOOL.Scale)" title="Scale [{{ _appService.getShortcut(_appService.shortcuts.Scale) }}]"></div>
+    <hr>
+    <div class="icon pan" (click)="_appService.ToolsService.setTool(_appService.ToolsService.TOOL.Pan)" title="Pan View [{{ _appService.getShortcut(_appService.shortcuts.Pan) }}]"></div>
+    <div class="icon zoom" (click)="_appService.ToolsService.setTool(_appService.ToolsService.TOOL.Zoom)" title="Zoom View [{{ _appService.getShortcut(_appService.shortcuts.Zoom) }}]"></div>
+    <hr>
+    <div class="icon delete" (click)="_appService.ToolsService.setTool(_appService.ToolsService.TOOL.Delete)" title="Delete Sprite(s) [{{ _appService.getShortcut(_appService.shortcuts.Delete) }}]"></div>
   </div>
   <!-- /Spritesheetr -->
 

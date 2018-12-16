@@ -5,7 +5,15 @@
 
     &__icon {
         float: right;
+        padding: 2px 3px;
+        border: solid 1px transparent;
+        border-radius: 3px;
+        box-sizing: border-box;
         cursor: pointer;
+
+        &:hover {
+            border-color: grey;
+        }
     }
 }
 
@@ -52,6 +60,10 @@
         justify-content: center;
     }
 
+    &.small {
+        font-size: 0.8em;
+    }
+
     label {
         margin-right: 5px;
         @extend %Quicksand-Light;
@@ -72,7 +84,6 @@ span {
 span.pad {
     padding: 0 3px;
 }
-
 
 
 .half-input {

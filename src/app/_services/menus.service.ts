@@ -1,15 +1,18 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { MenuBarComponent } from '../_components/_menus/menu-bar/menu-bar.component';
+import { MenuPropertiesComponent } from '../_components/_menus/menu-properties/menu-properties.component';
 
 @Injectable()
 export class MenusService {
 
   private _menuBar:MenuBarComponent;
+  private _menuProps:MenuPropertiesComponent;
 
   private _requestedContexts:string[];
   private _currentContext:string;
 
   public onContextChange:EventEmitter<string> = new EventEmitter();
+  public onQualityChange:EventEmitter<string>  = new EventEmitter();
 
   constructor() { }
 
@@ -17,6 +20,14 @@ export class MenusService {
   /*------------------------------------------- METHODS --------------------------*/
   public addMenuBar(menuBar:MenuBarComponent):void {
     this._menuBar = menuBar;
+  }
+
+  public addMenuProperties(menuProps:MenuPropertiesComponent):void {
+
+    this._menuProps = menuProps;
+    
+    //listen to menu and send to app service
+    menuProps.onQualityChange.subscribe((quality:string) => this.onQualityChange.emit(quality), err => console.warn("Could not change quality! " + err));
   }
 
   public load():void {
@@ -68,6 +79,7 @@ export class MenusService {
 
 
   public get MenuBar():MenuBarComponent { return this._menuBar;}
+  public get MenuProps():MenuPropertiesComponent { return this._menuProps; }
 
   public get CurrentContext():string { return this._currentContext; }
   public get CurrentContextTitle():string { return Object.keys(this.CONTEXT)[Object.values(this.CONTEXT).indexOf(this._currentContext)]; }

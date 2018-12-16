@@ -6,4 +6,30 @@
     padding: 6px;
     border-right: solid 1px grey;
     box-sizing: border-box;
+
+
+    .icon {
+        width: 18px;
+        height: 18px;
+        margin-bottom: 3px;
+        border: solid 1px #cccccc;
+        border-radius: 3px;
+        cursor: pointer;
+
+        &:not(.selected):hover {
+            border-color: grey;
+        }
+
+        &.selected {
+            background-color: $button-colour;
+            cursor: default;
+        }
+    }
+    .select { background: url('/assets/images/ui/tool-icons.png'); }
+    .marquee { background: url('/assets/images/ui/tool-icons.png') -18px 0; }
+    .move { background: url('/assets/images/ui/tool-icons.png') -36px 0; }
+    .scale { background: url('/assets/images/ui/tool-icons.png') -108px 0; }
+    .pan { background: url('/assets/images/ui/tool-icons.png') -54px 0; }
+    .zoom { background: url('/assets/images/ui/tool-icons.png') -72px 0; }
+    .delete { background: url('/assets/images/ui/tool-icons.png') -90px 0; }
 }

@@ -6,64 +6,83 @@
 
   <div class="content" [ngClass]="{'collapsed' : _collapsed}">
 
-    <!-- Sprite Menu -->
-    <div class="group sprite" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Sprite" (click)="_onContextClick()">
-      <div class="title">Sprite Menu</div>
-      <div *ngIf="_appService.Workspace.SelectedSprite">
-        <div class="row">
-          <label for="sprName">Name</label>
-          <input id="sprName" type="text" [value]="_appService.Workspace.SelectedSprite.name">
+    <div *ngIf="_appService.ToolsService.CurrentTool == _appService.ToolsService.TOOL.Select">
+
+      <!-- Sprite Menu -->
+      <div class="group sprite" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Sprite" (click)="_onContextClick()">
+        <div class="title">Sprite Menu</div>
+        <div *ngIf="_appService.Workspace.SelectedSprite">
+          <div class="row">
+            <label for="sprName">Name</label>
+            <input id="sprName" type="text" [value]="_appService.Workspace.SelectedSprite.name">
+          </div>
+          <div class="row">
+            <label for="sprX">X</label>
+            <input id="sprX" type="number" [value]="_appService.Workspace.SelectedSprite.x">
+            <label for="sprY">Y</label>
+            <input id="sprY" type="number" [value]="_appService.Workspace.SelectedSprite.y">
+          </div>
+          <div class="row">
+            <label for="sprWidth">Size</label>
+            <input id="sprWidth" type="number" [value]="_appService.Workspace.SelectedSprite.height">
+            <span class="pad">&#215;</span>
+            <input id="sprHeight" type="number" [value]="_appService.Workspace.SelectedSprite.width">
+          </div>
+
+          <div class="row center">
+            <button>Replace Image</button>
+          </div>        
+
+          <div class="row center">
+            <button>Duplicate</button>
+          </div>
+          <div class="row center">
+            <button>Delete</button>
+          </div>
         </div>
-        <div class="row">
-          <label for="sprX">X</label>
-          <input id="sprX" type="number" [value]="_appService.Workspace.SelectedSprite.x">
-          <label for="sprY">Y</label>
-          <input id="sprY" type="number" [value]="_appService.Workspace.SelectedSprite.y">
-        </div>
-        <div class="row">
-          <label for="sprWidth">Size</label>
-          <input id="sprWidth" type="number" [value]="_appService.Workspace.SelectedSprite.height">
+        
+      </div>
+      <!-- /Sprite Menu -->
+
+
+      <!-- Workarea Menu -->
+        <div class="group workarea" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Workarea" (click)="_onContextClick()">
+        <div class="title">Workarea Menu</div>
+        <div class="half-input row">
+          <!-- <input type="number" [value]="_appService.Workspace.Workarea.Width" (change)="_appService.Workspace.Workarea.onChangeWidth($event)"> -->
+          <input type="number" [value]="_appService.Workspace.Workarea.Width" (change)="_appService.Workspace.Workarea.Width = $event.target.value">
           <span class="pad">&#215;</span>
-          <input id="sprHeight" type="number" [value]="_appService.Workspace.SelectedSprite.width">
+          <input type="number" [value]="_appService.Workspace.Workarea.Height" (change)="_appService.Workspace.Workarea.Height = $event.target.value">
+        </div>
+        <div class="row">
+          <input type="color" [value]="_appService.Workspace.Workarea.Colour" (change)="_appService.Workspace.Workarea.Colour = $event.target.value">
+        </div>
+        <div class="row">
+          <span>Use Transparency</span>
+          <label class="custom-checkbox">
+          <input class="custom-checkbox__input" type="checkbox" [checked]="_appService.Workspace.Workarea.Transparent" [value]="_appService.Workspace.Workarea.Transparent" (change)="_appService.Workspace.Workarea.Transparent = $event.target.checked">
+          <span class="custom-checkbox__element"></span>
+          </label>
+        </div>
+        <div class="row center">
+          <button>Autosize</button>
         </div>
 
-        <div class="row center">
-          <button>Replace Image</button>
-        </div>        
+        <app-toggle-list-group customClass="custom-button" [hoverable]="false" text="Render Quality" [items]="QualityOptions" (onChanged)="_onQualityChanged($event)"></app-toggle-list-group>
+        <div class="row small">
+          <span>Quality: </span>
+          <span [innerHTML]="_currentQuality"></span>
+        </div>
+        
       </div>
-      
-    </div>
-    <!-- /Sprite Menu -->
+      <!-- /Workarea Menu -->
 
 
-    <!-- Workarea Menu -->
-      <div class="group workarea" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Workarea" (click)="_onContextClick()">
-      <div class="title">Workarea Menu</div>
-      <div class="half-input row">
-        <!-- <input type="number" [value]="_appService.Workspace.Workarea.Width" (change)="_appService.Workspace.Workarea.onChangeWidth($event)"> -->
-        <input type="number" [value]="_appService.Workspace.Workarea.Width" (change)="_appService.Workspace.Workarea.Width = $event.target.value">
-        <span class="pad">&#215;</span>
-        <input type="number" [value]="_appService.Workspace.Workarea.Height" (change)="_appService.Workspace.Workarea.Height = $event.target.value">
-      </div>
-      <div class="row">
-        <input type="color" [value]="_appService.Workspace.Workarea.Colour" (change)="_appService.Workspace.Workarea.Colour = $event.target.value">
-      </div>
-      <div class="row">
-        <span>Use Transparency</span>
-        <label class="custom-checkbox">
-        <input class="custom-checkbox__input" type="checkbox" [checked]="_appService.Workspace.Workarea.Transparent" [value]="_appService.Workspace.Workarea.Transparent" (change)="_appService.Workspace.Workarea.Transparent = $event.target.checked">
-        <span class="custom-checkbox__element"></span>
-        </label>
-      </div>
-      <div class="row center">
-        <button>Autosize</button>
-      </div>
-      
     </div>
-    <!-- /Workarea Menu -->
+
 
     <!-- Zoom Menu -->
-    <div class="group zoom" (click)="_onContextClick()">
+    <div class="group zoom" (click)="_onContextClick()" *ngIf="_appService.ToolsService.CurrentTool == _appService.ToolsService.TOOL.Zoom">
       <div class="title">Zoom Menu</div>
       <div class="row center">
         <button (click)="_appService.Workspace.Workarea.Scale = _appService.Workspace.Workarea.Scale * 2">Zoom In</button>

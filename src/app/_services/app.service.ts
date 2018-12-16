@@ -6,6 +6,7 @@ import { MenuBarComponent } from '../_components/_menus/menu-bar/menu-bar.compon
 import { WorkspaceManager } from '../_managers/WorkspaceManager';
 import { LoadManager, IWorkspace } from '../_managers/LoadManager';
 import { SpriteComponent } from '../_components/sprite/sprite.component';
+import { ToolsService } from './tools.service';
 
 @Injectable()
 export class AppService {
@@ -16,7 +17,7 @@ export class AppService {
   private _workspaceManager:WorkspaceManager;
   private _loadManager:LoadManager;
 
-  constructor(private _spritesService:SpritesService, private _menusService:MenusService, private _statesService:StatesService) { }
+  constructor(private _spritesService:SpritesService, private _menusService:MenusService, private _statesService:StatesService, private _toolsService:ToolsService) { }
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   /*------------------------------------------- METHODS --------------------------*/
@@ -28,12 +29,12 @@ export class AppService {
     this._spritesService.load();
     this._menusService.load();
     this._statesService.load();
+    this._toolsService.load();
 
     //setup managers
     this._workspaceManager = new WorkspaceManager(this);
     this._loadManager = new LoadManager();
 
-    //TEST
     this._loadManager.fetchFile("/assets/data/projects/example1.sheetr");
 
     this._statesService.setState(this._statesService.STATE.Spritesheetr);
@@ -41,6 +42,7 @@ export class AppService {
 
     //subscribe to events
     this._menusService.onContextChange.subscribe(this._onContextChange.bind(this), err => console.warn("There was an error changing context. " + err));
+    this._menusService.onQualityChange.subscribe(this._onQualityChange.bind(this), err => console.warn("Could not change quality! " + err));
     this._workspaceManager.onScale.subscribe(this._onScale.bind(this), err => console.warn("Error scaling workarea. " + err));
     this._loadManager.onLoaded.subscribe(this._onLoadedWorkspace.bind(this), err => console.log("Could not load workspace! " + err));
 
@@ -98,6 +100,12 @@ export class AppService {
   public redo():void {
     console.log("REDO!");
   }
+  public copy():void {
+    console.log("COPY");
+  }
+  public paste():void {
+    console.log("PASTE!");
+  }
   /*------------------------------------------- EVENTS ---------------------------*/
   private _onContextChange(context:string):void {
     //change the menu
@@ -105,6 +113,11 @@ export class AppService {
 
     //activate/deactivate workspace
     if(context != this._menusService.CONTEXT.Sprite) this._spritesService.deselectAll();
+  }
+
+  private _onQualityChange(quality:string):void {
+    //set quality on sprites
+    this._spritesService.changeQuality(quality);
   }
 
   private _onScale(scale:number):void {
@@ -143,6 +156,8 @@ export class AppService {
     //
     if(this._hasKeysPressed(AppService.SHORTCUTS.Undo)) this.undo();
     if(this._hasKeysPressed(AppService.SHORTCUTS.Redo)) this.redo();
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Copy)) this.copy();
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Paste)) this.paste();
 
 
     return false;
@@ -158,6 +173,7 @@ export class AppService {
   public get SpritesService():SpritesService { return this._spritesService; }
   public get MenusService():MenusService { return this._menusService; }
   public get StatesService():StatesService { return this._statesService; }
+  public get ToolsService():ToolsService { return this._toolsService; }
 
   public get Workspace():WorkspaceManager { return this._workspaceManager; }
 
@@ -177,8 +193,25 @@ export class AppService {
     "Export": ["Shift", "E"],
 
     "Undo": ["Shift", "Z"],
-    "Redo": ["Shift", "Y"]
+    "Redo": ["Shift", "Y"],
+    "Copy": ["Shift", "C"],
+    "Paste": ["Shift", "V"],
+
+    "Select": ["Q"],
+    "Marquee": ["M"],
+    "Move": ["V"],
+    "Scale": ["S"],
+    "Pan": ["H"],
+    "Zoom": ["Z"],
+    "Delete": ["K"]
+
   });}
+
+  //for use in templates
+  public getShortcut(shortcutKeys:string[]):string {
+    return AppService.GetShortcut(shortcutKeys);
+  }
+  public get shortcuts() { return AppService.SHORTCUTS; }
 
 
 

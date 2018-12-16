@@ -11,8 +11,10 @@ export class ToggleListGroupComponent implements OnInit {
   @Input() text:string;
   @Input() items:string[];
 
-  @Input() hoverable:boolean = false;
+  @Input() hoverable:boolean = true;
   @Input() disabled:boolean = false;
+
+  @Input() customClass:string = "";
   
   @Output() onChanged:EventEmitter<number> = new EventEmitter();
 
@@ -44,12 +46,12 @@ export class ToggleListGroupComponent implements OnInit {
 
   // Internal
   private _onMouseOver():void {
-    if(this.disabled) return;
+    if(this.disabled || !this.hoverable) return;
 
     this.isOpen = true;
   }
   private _onMouseOut():void {
-    if(this.disabled) return;
+    if(this.disabled || !this.hoverable) return;
 
     this.isOpen = false;
   }

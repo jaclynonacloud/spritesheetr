@@ -19,14 +19,24 @@ input, select, button {
 
 
 //inputs
-input, button {
-    background: $button-colour;
-    border: solid 1px $background-dark-colour;
-    user-select: none;
-    outline: none;
+input, button, select {
+    @extend %button;
+}
+select {
+    width: 100%;
+    padding: 3px 5px;
+    font-size: 0.85em;
+    -webkit-appearance: listbox;
 
-    &:hover {
-        background: mix($alt-colour, white, 40);
+    &::-ms-expand {
+        display: none;
+    }
+
+    option {
+        background: $button-colour;
+        padding: 3px;
+        margin: 3px;
+        font-size: 0.85em;
     }
 }
 

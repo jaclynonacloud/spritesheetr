@@ -43,7 +43,10 @@ export class MenuBarComponent implements OnInit {
     //edit
     this._editOptions = [
       { title:"Undo", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Undo), action:this._appService.undo.bind(this._appService) },
-      { title:"Redo", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Redo), action:this._appService.redo.bind(this._appService) }
+      { title:"Redo", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Redo), action:this._appService.redo.bind(this._appService) },
+      { title:"_separator", action:null },
+      { title:"Copy", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Copy), action:this._appService.copy.bind(this._appService) },
+      { title:"Paste", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Paste), action:this._appService.paste.bind(this._appService) }
     ];
     this._editOptionsProps = this._getOptionProps(this._editOptions);
 

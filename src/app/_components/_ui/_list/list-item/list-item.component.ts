@@ -8,6 +8,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class ListItemComponent implements OnInit {
 
   @Input() text:string;
+  @Input() customClass:string;
+  
   @Output() onClicked:EventEmitter<MouseEvent> = new EventEmitter();
 
   constructor() { }

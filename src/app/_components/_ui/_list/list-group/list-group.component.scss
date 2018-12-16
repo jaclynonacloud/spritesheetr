@@ -8,4 +8,10 @@
     flex-flow: column;
     border: solid 1px grey;
     border-top: dotted 1px white;
+
+
+    // STYLES
+    &.custom-button {
+        position: relative;
+    }
 }

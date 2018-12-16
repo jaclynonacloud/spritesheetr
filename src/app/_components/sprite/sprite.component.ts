@@ -21,6 +21,8 @@ export class SpriteComponent implements OnInit {
   private _naturalWidth:number;
   private _naturalHeight:number;
 
+  private _quality:string;
+
   //flags
   private _isSelectable:boolean = false;
   private _isSelected:boolean = false;
@@ -29,6 +31,8 @@ export class SpriteComponent implements OnInit {
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   ngOnInit() {
+    this._quality = "";
+
     //add to sprite manager
     this._spritesService.addSprite(this);
 
@@ -40,6 +44,9 @@ export class SpriteComponent implements OnInit {
 
       this.callScale(1);
     });
+
+    //set init quality
+    this.setQuality(this._appService.MenusService.MenuProps.CurrentQualityClass);
 
   }
   /*------------------------------------------- METHODS --------------------------*/
@@ -68,6 +75,13 @@ export class SpriteComponent implements OnInit {
     //set size
     this._element.nativeElement.style.width = `${this._naturalWidth * scale}px`;
     this._element.nativeElement.style.height = `${this._naturalHeight * scale}px`;
+  }
+
+  public setQuality(quality:string):void {
+    if(this._quality != "") this.Element.classList.remove(this._quality);
+
+    this._quality = quality;
+    this.Element.classList.add(this._quality);
   }
   /*------------------------------------------- EVENTS ---------------------------*/
   private _onClicked():void {

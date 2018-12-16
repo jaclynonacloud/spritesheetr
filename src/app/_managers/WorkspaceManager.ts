@@ -14,7 +14,21 @@ export class WorkspaceManager {
 
     public onScale:EventEmitter<number> = new EventEmitter();
 
-    constructor(private _appService:AppService) {}
+    constructor(private _appService:AppService) {
+
+        //wait for sprite to load and props
+        this._appService.SpritesService.onLoaded.subscribe((spr:SpriteComponent) => {
+            //get index
+            const index:number = this._appService.SpritesService.Sprites.indexOf(spr);
+            //get our template
+            const data:ISprite = this._sprites[index];
+            console.log("GIMME DATA");
+            //set props
+            spr.X = data.x;
+            spr.Y = data.y;
+        });
+
+    }
     /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
     /*------------------------------------------- METHODS --------------------------*/
     public setTitle(title:string):void {

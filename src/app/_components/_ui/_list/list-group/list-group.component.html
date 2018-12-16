@@ -1,3 +1,3 @@
-<div class="list-group" [ngClass]="{'show' : isOpen }">
-  <app-list-item [text]="item" (onClicked)="_onClickedItem($event)" *ngFor="let item of items"></app-list-item>
+<div class="list-group" [ngClass]="[customClass, (isOpen) ? 'show' : '']">
+  <app-list-item [customClass]="customClass" [text]="item" (onClicked)="_onClickedItem($event)" *ngFor="let item of items"></app-list-item>
 </div>

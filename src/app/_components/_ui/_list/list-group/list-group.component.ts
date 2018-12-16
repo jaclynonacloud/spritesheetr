@@ -6,6 +6,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./list-group.component.scss']
 })
 export class ListGroupComponent implements OnInit {
+  @Input() customClass:string = "";
   @Input() items:string[];
   @Output() onChanged:EventEmitter<number> = new EventEmitter();
   

@@ -59,6 +59,15 @@ export class SpritesService {
     this._sprites.forEach(spr => spr.select());
   }
 
+
+  public changeQuality(quality:string):void {
+    console.log("CHANGING QUALITY: " + quality);
+    this._sprites.forEach((spr:SpriteComponent) => {
+      // spr.Element.style['image-rendering'] = quality;
+      spr.setQuality(quality);
+    });
+  }
+
   //handle states
   public onClicked(sprite:SpriteComponent):void {
     console.log("I HAVE LISTENED");

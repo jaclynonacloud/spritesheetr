@@ -10,6 +10,14 @@
     border-bottom: none;
     box-sizing: border-box;
 
+    // STYLES
+    &.custom-button {
+        @extend %button;
+        background: $button-colour;
+        padding: 3px 3px;
+        font-size: 0.85em;
+    }
+
     &.toggled {
         background: mix($button-selected-colour, white, 80);
         border-color: grey;

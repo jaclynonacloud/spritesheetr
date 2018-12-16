@@ -11,6 +11,7 @@ export class ToggleButtonComponent implements OnInit {
   @Input() isOn:boolean = false;
   @Input() hoverable:boolean = false;
   @Input() disabled:boolean = false;
+  @Input() customClass:string = "";
 
   @Output() onClicked:EventEmitter<ToggleButtonComponent> = new EventEmitter();
   @Output() onClickedState:EventEmitter<boolean> = new EventEmitter();

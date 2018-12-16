@@ -19,6 +19,7 @@ import { ToggleListGroupComponent } from './_components/_ui/_list/toggle-list-gr
 import { ListPropertyItemComponent } from './_components/_ui/_list-property/list-property-item/list-property-item.component';
 import { ListPropertyGroupComponent } from './_components/_ui/_list-property/list-property-group/list-property-group.component';
 import { ToggleListPropertyGroupComponent } from './_components/_ui/_list-property/toggle-list-property-group/toggle-list-property-group.component';
+import { ToolsService } from './_services/tools.service';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,7 @@ import { ToggleListPropertyGroupComponent } from './_components/_ui/_list-proper
   imports: [
     BrowserModule
   ],
-  providers: [AppService, SpritesService, MenusService, StatesService],
+  providers: [AppService, SpritesService, MenusService, StatesService, ToolsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

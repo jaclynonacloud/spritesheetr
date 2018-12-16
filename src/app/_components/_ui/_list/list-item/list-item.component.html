@@ -1,1 +1,1 @@
-<div class="list-item" (click)="_onClicked($event)" [innerHTML]="_getText()" [ngClass]="{'separator' : text == '_separator'}"></div>
+<div class="list-item" (click)="_onClicked($event)" [innerHTML]="_getText()" [ngClass]="[customClass, (text == '_separator') ? 'separator' : '']"></div>

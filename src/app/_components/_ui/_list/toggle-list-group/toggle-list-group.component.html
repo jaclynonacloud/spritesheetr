@@ -1,6 +1,6 @@
 <div class="toggle-list-group" hoverable="true" (mouseenter)="_onMouseOver()" (mouseleave)="_onMouseOut()">
-  <app-toggle-button [text]="text" [isOn]="isOpen" [disabled]="disabled" (onClicked)="_onToggleButtonClicked($event)" ></app-toggle-button>
+  <app-toggle-button [customClass]="customClass" [text]="text" [isOn]="isOpen" [disabled]="disabled" (onClicked)="_onToggleButtonClicked($event)" ></app-toggle-button>
   <div class="toggle-list-group__wrapper">
-    <app-list-group [items]="items" (onChanged)="_onChanged($event)" *ngIf="isOpen"></app-list-group>
+    <app-list-group [customClass]="customClass" [items]="items" (onChanged)="_onChanged($event)" *ngIf="isOpen"></app-list-group>
   </div>
 </div>
