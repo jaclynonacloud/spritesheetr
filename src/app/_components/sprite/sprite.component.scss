@@ -1,3 +1,8 @@
+%outline {
+    outline: solid 1px red;
+    outline-offset: -1px;
+}
+
 .sprite {
     position: relative;
     pointer-events: none;
@@ -8,19 +13,22 @@
         left: 0;
         width: 100%;
         height: 100%;
+        user-select: none;
     }
 
 
+    // States
     &.selectable {
         pointer-events: all;
         cursor: pointer;
-        &:hover, &.selected {
-            outline: solid 1px red;
-            outline-offset: -1px;
-        }
         &:hover {
             background: rgba(255, 255, 255, 0.01);
+            @extend %outline;
         }
+    }
+
+    &.selected {
+        @extend %outline;
     }
     
 }

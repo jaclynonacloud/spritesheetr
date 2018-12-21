@@ -12,6 +12,7 @@ import { ToolsService } from './tools.service';
 export class AppService {
 
   private _keys:string[];
+  private _isShiftPressed:boolean;
 
   //create managers
   private _workspaceManager:WorkspaceManager;
@@ -24,6 +25,7 @@ export class AppService {
   public load():void {
 
     this._keys = [];
+    this._isShiftPressed = false;
 
     //load services
     this._spritesService.load();
@@ -145,10 +147,23 @@ export class AppService {
       this._keys.push(e.key);
     }
 
+    //modifier keys
+    if(e.key == "Shift") this._isShiftPressed = true;
+
     
 
     //test keys
     //listen for key combinations
+    //single keys
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Select)) this._toolsService.setTool(this._toolsService.TOOL.Select);
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Marquee)) this._toolsService.setTool(this._toolsService.TOOL.Marquee);
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Move)) this._toolsService.setTool(this._toolsService.TOOL.Move);
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Scale)) this._toolsService.setTool(this._toolsService.TOOL.Scale);
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Pan)) this._toolsService.setTool(this._toolsService.TOOL.Pan);
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Zoom)) this._toolsService.setTool(this._toolsService.TOOL.Zoom);
+    if(this._hasKeysPressed(AppService.SHORTCUTS.Delete)) this._toolsService.setTool(this._toolsService.TOOL.Delete);
+
+    //multi keys
     if(this._hasKeysPressed(AppService.SHORTCUTS.New)) this.new();
     if(this._hasKeysPressed(AppService.SHORTCUTS.Open)) this.open();
     if(this._hasKeysPressed(AppService.SHORTCUTS.Save)) this.save();
@@ -165,6 +180,9 @@ export class AppService {
   private _onKeyUp(e:KeyboardEvent) {
     // this._keys = this._keys.splice(this._keys.indexOf(e.key), 1);
     this._keys = this._keys.filter(key => key != e.key);
+
+    //modifier keys
+    if(e.key == "Shift") this._isShiftPressed = false;
   }
 
 
@@ -177,13 +195,15 @@ export class AppService {
 
   public get Workspace():WorkspaceManager { return this._workspaceManager; }
 
+  public get IsShiftPressed():boolean { return this._isShiftPressed; }
+
 
 
   // Handle shortcuts
   public static GetShortcut(shortcutKeys:string[]) {
     let keys = [...shortcutKeys];
     //rename longer key names
-    keys = keys.map(key => key.replace("Control", "Ctrl").replace("Left Shift", "Shift"));
+    keys = keys.map(key => key.toUpperCase().replace("CONTROL", "Ctrl").replace("SHIFT", "Shift"));
     return keys.join(" + ");
   }
   public static get SHORTCUTS() { return Object.freeze({
@@ -197,13 +217,13 @@ export class AppService {
     "Copy": ["Shift", "C"],
     "Paste": ["Shift", "V"],
 
-    "Select": ["Q"],
-    "Marquee": ["M"],
-    "Move": ["V"],
-    "Scale": ["S"],
-    "Pan": ["H"],
-    "Zoom": ["Z"],
-    "Delete": ["K"]
+    "Select": ["q"],
+    "Marquee": ["m"],
+    "Move": ["v"],
+    "Scale": ["s"],
+    "Pan": ["h"],
+    "Zoom": ["z"],
+    "Delete": ["k"]
 
   });}
 

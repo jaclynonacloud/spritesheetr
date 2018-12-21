@@ -1,6 +1,7 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { MenuBarComponent } from '../_components/_menus/menu-bar/menu-bar.component';
 import { MenuToolbarComponent } from '../_components/_menus/menu-toolbar/menu-toolbar.component';
+import { WorkspaceManager } from '../_managers/WorkspaceManager';
 
 @Injectable()
 export class ToolsService {
@@ -16,10 +17,6 @@ export class ToolsService {
   /*------------------------------------------- METHODS --------------------------*/
   public addToolbar(toolbar:MenuToolbarComponent):void {
     this._toolbar = toolbar;
-
-    this.setTool(this.TOOL.Select);
-    //TEST
-    // this.setTool(this.TOOL.Zoom);
   }
 
   public load():void {
@@ -40,6 +37,7 @@ export class ToolsService {
 
     this._currentTool = tool;
     console.log("Tool set to : " + tool);
+    this.onToolChanged.emit(tool);
   }
   /*------------------------------------------- EVENTS ---------------------------*/
   /*------------------------------------------- OVERRIDES ------------------------*/

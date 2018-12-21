@@ -1,6 +1,7 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { MenuBarComponent } from '../_components/_menus/menu-bar/menu-bar.component';
 import { MenuPropertiesComponent } from '../_components/_menus/menu-properties/menu-properties.component';
+import { ToolsService } from './tools.service';
 
 @Injectable()
 export class MenusService {
@@ -10,11 +11,12 @@ export class MenusService {
 
   private _requestedContexts:string[];
   private _currentContext:string;
+  private _canChangeMenuContext:boolean = true;
 
   public onContextChange:EventEmitter<string> = new EventEmitter();
   public onQualityChange:EventEmitter<string>  = new EventEmitter();
 
-  constructor() { }
+  constructor(private _toolsService:ToolsService) { }
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   /*------------------------------------------- METHODS --------------------------*/
@@ -35,6 +37,9 @@ export class MenusService {
     this._currentContext = "";
 
     document.addEventListener("mouseup", this._onClickFinished.bind(this));
+
+    //listen to other services
+    this._toolsService.onToolChanged.subscribe((tool:string) => this._onToolChanged(tool));
   }
 
   /**Immediately sets the context.  Use CONTEXT. */
@@ -43,6 +48,8 @@ export class MenusService {
   }
   /**Requests context change on mouse up event.  Use CONTEXT. */
   public requestContext(context:string):void {
+    if(!this._canChangeMenuContext) return;
+
     this._requestedContexts.push(context);
     console.log("REQUESTING: " + context);
   }
@@ -68,6 +75,26 @@ export class MenusService {
 
 
     this._requestedContexts = [];
+  }
+
+
+  private _onToolChanged(tool:string):void {
+    const TOOLS = this._toolsService.TOOL;
+
+    //handle viewable requested contexts
+    switch(tool) {
+      case TOOLS.Select:
+        this._canChangeMenuContext = true;
+        break;
+      case TOOLS.Marquee:
+      case TOOLS.Move:
+      case TOOLS.Scale:
+      case TOOLS.Pan:
+      case TOOLS.Zoom:
+      case TOOLS.Delete:
+        this._canChangeMenuContext = false;
+    }
+
   }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/

@@ -83,3 +83,9 @@ button {
         }
     }
 }
+
+
+hr {
+    border: none;
+    border-bottom: solid 1px mix($background-colour, $alt-colour, 50);
+}

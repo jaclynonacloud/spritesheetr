@@ -2,6 +2,7 @@ import { Component, OnInit, EventEmitter } from '@angular/core';
 import { MenusService } from '../../../_services/menus.service';
 import { AppService } from '../../../_services/app.service';
 import { IOption } from '../menu-bar/menu-bar.component';
+import { ISprite, SpriteData } from '../../../_managers/LoadManager';
 
 @Component({
   selector: 'app-menu-properties',
@@ -18,6 +19,7 @@ export class MenuPropertiesComponent implements OnInit {
   private _currentQuality:string = "<br>";
 
   public onQualityChange:EventEmitter<string> = new EventEmitter();
+  public onSpriteChange:EventEmitter<ISprite> = new EventEmitter();
 
   constructor(private _appService:AppService) { }
 
@@ -64,6 +66,21 @@ export class MenuPropertiesComponent implements OnInit {
   //called by template
   private _onQualityChanged(index:number):void {
     this.setQuality(this._qualityOptions[index].action.quality, this._qualityOptions[index].action.title);
+  }
+
+  private _onSpriteChanged(property:string, value:any):void {
+    // console.log(property, value);
+    // const sprite:SpriteData = this._appService.Workspace.SelectedSprite;
+    // if(sprite == null) return;
+
+    // console.log(sprite);
+
+    // //toggle value
+    // if(property == "name") sprite.data.name = value as string;
+    // else if(property == "x") sprite.X = parseFloat(value);
+    // else if(property == "y") sprite.Y = parseFloat(value)
+    // else if(property == "width") sprite.Width = parseFloat(value);
+    // else if(property == "height") sprite.Height = parseFloat(value);
   }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/

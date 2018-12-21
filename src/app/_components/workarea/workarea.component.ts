@@ -10,6 +10,7 @@ import { AppService } from '../../_services/app.service';
 export class WorkareaComponent implements OnInit {
 
   @ViewChild("workarea", {read:ElementRef}) element:ElementRef;
+  @ViewChild("marquee", {read:ElementRef}) marqueeElement:ElementRef;
 
   private _width:number;
   private _height:number;
@@ -32,6 +33,8 @@ export class WorkareaComponent implements OnInit {
   /*------------------------------------------- EVENTS ---------------------------*/
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
+  public get Element():HTMLElement { return this.element.nativeElement as HTMLElement; }
+  public get MarqueeElement():HTMLElement { return this.marqueeElement.nativeElement as HTMLElement; }
   public get Width():number { return this._width; }
   public get RenderWidth():number { return this._width * this._scale; }
   public set Width(value:number) {

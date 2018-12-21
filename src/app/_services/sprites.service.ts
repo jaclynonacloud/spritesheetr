@@ -1,6 +1,7 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { SpriteComponent } from '../_components/sprite/sprite.component';
 import { MenusService } from './menus.service';
+import { ToolsService } from './tools.service';
 
 @Injectable()
 export class SpritesService {
@@ -10,13 +11,15 @@ export class SpritesService {
   public onClickedSprite:EventEmitter<SpriteComponent> = new EventEmitter();
   public onLoaded:EventEmitter<SpriteComponent> = new EventEmitter();
 
-  constructor(private _menusService:MenusService) { }
+  constructor(private _toolsService:ToolsService, private _menusService:MenusService) { }
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   /*------------------------------------------- METHODS --------------------------*/
   public load():void {
     this._sprites = [];
     this._selected = null;
+
+    this._toolsService.onToolChanged.subscribe((tool:string) => this._onToolChanged(tool));
   }
 
   public addSprite(sprite:SpriteComponent):void {
@@ -34,8 +37,8 @@ export class SpritesService {
   }
 
   //handle flags
-  public select(sprite:SpriteComponent):number {
-    if(this._selected != null) {
+  public select(sprite:SpriteComponent, deselectPrevious:boolean = true):number {
+    if(this._selected != null && deselectPrevious) {
       this._selected.deselect();
     }
 
@@ -74,10 +77,32 @@ export class SpritesService {
     console.log(sprite);
 
     this.select(sprite);
-
     this.onClickedSprite.emit(sprite);
+
   }
   /*------------------------------------------- EVENTS ---------------------------*/
+  private _onToolChanged(tool:string):void {
+
+    const TOOLS = this._toolsService.TOOL;
+
+    //handle clickable sprites
+    switch(tool) {
+      case TOOLS.Select:
+      case TOOLS.Delete:
+        this.enableAll();
+        break;
+      case TOOLS.Marquee:
+        this.disableAll();
+        break;
+      case TOOLS.Move:
+      case TOOLS.Scale:
+      case TOOLS.Pan:
+      case TOOLS.Zoom:
+        this.deselectAll();
+        this.disableAll();
+    }
+
+  }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
   public get Sprites():SpriteComponent[] { return this._sprites; }

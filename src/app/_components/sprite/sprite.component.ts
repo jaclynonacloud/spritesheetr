@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { SpritesService } from '../../_services/sprites.service';
 import { AppService } from '../../_services/app.service';
-import { ISprite } from '../../_managers/LoadManager';
+import { ISprite, SpriteData } from '../../_managers/LoadManager';
 
 @Component({
   selector: 'app-sprite',
@@ -14,10 +14,8 @@ export class SpriteComponent implements OnInit {
   @ViewChild("element", {read:ElementRef}) _element:ElementRef;
   @ViewChild("image", {read:ElementRef}) _image:ElementRef;
 
-  @Input() data:ISprite;
+  public _data:SpriteData;
 
-  private _x:number;
-  private _y:number;
   private _naturalWidth:number;
   private _naturalHeight:number;
 
@@ -33,6 +31,9 @@ export class SpriteComponent implements OnInit {
   ngOnInit() {
     this._quality = "";
 
+    console.log("IMAGE");
+    console.log(this._image);
+
     //add to sprite manager
     this._spritesService.addSprite(this);
 
@@ -47,9 +48,19 @@ export class SpriteComponent implements OnInit {
 
     //set init quality
     this.setQuality(this._appService.MenusService.MenuProps.CurrentQualityClass);
-
   }
   /*------------------------------------------- METHODS --------------------------*/
+  public load(data:SpriteData):void {
+    this._data = data;
+
+    //listen to change BEFORE calling it
+    this._data.onChange.subscribe((prop:string) => this._onContextChange(prop));
+
+    //call this to invoke data frome ISprite data.
+    this._data.callChange();
+    
+  }
+  
   public setSelectable(yes:boolean):void {
     this._isSelectable = yes;
     if(yes) this.Element.classList.add("selectable");
@@ -63,12 +74,14 @@ export class SpriteComponent implements OnInit {
   public select():void {
     this._isSelected = true;
 
-    if(this._isSelectable) this.Element.classList.add("selected");
+    this.Element.classList.add("selected");
   }
   public deselect():void {
+    console.log("DESELECT ME!");
+    console.log(this.Element);
     this._isSelected = false;
 
-    if(this._isSelectable) this.Element.classList.remove("selected");
+    this.Element.classList.remove("selected");
   }
 
   public callScale(scale:number):void {
@@ -83,6 +96,24 @@ export class SpriteComponent implements OnInit {
     this._quality = quality;
     this.Element.classList.add(this._quality);
   }
+
+  //tests
+  public isWithinBounds(x:number, y:number, width:number, height:number):boolean {
+    const rect = this.Rect;
+
+    if(rect.x > x)
+      if((rect.x + rect.width) < width)
+        if(rect.y > y)
+          if((rect.y + rect.height) < height)
+            return true;
+
+    return false;
+  }
+
+  public writeRect():void {
+    const { x, y, width, height } = this.Rect;
+    console.log("SPRITE RECT:", x, y, width, height);
+  }
   /*------------------------------------------- EVENTS ---------------------------*/
   private _onClicked():void {
     if(!this._isSelectable) return;
@@ -90,20 +121,29 @@ export class SpriteComponent implements OnInit {
     console.log("I AM CLICKED!");
     this._spritesService.onClicked(this);
   }
+
+
+  private _onContextChange(prop:string):void {
+    if(prop == "x" || prop == "all") (this._element.nativeElement.parentElement as HTMLElement).style.left = `${this._data.X}px`;
+    if(prop =="y" || prop == "all") (this._element.nativeElement.parentElement as HTMLElement).style.top = `${this._data.Y}px`;
+  }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
+  public get Data():SpriteData { return this._data; }
   public get Element():HTMLElement { return this._element.nativeElement as HTMLElement; }
   public get Container():HTMLElement { return this._element.nativeElement.parentElement as HTMLElement; }
 
-  public set X(value:number) { 
-    this._x = value;
-    (this._element.nativeElement.parentElement as HTMLElement).style.left = `${this._x}px`;
+
+  public get X():number { return this._data.X; }
+  public get Y():number { return this._data.Y; }
+
+  public get Rect() {
+    return {
+      x: this.X,
+      y: this.Y,
+      width: this.Element.getBoundingClientRect().width,
+      height: this.Element.getBoundingClientRect().height
+    };
   }
-  public get X():number { return this._x; }
-  public set Y(value:number) { 
-    this._y = value;
-    (this._element.nativeElement.parentElement as HTMLElement).style.top = `${this._y}px`;
-  }
-  public get Y():number { return this._y; }
 
 }
