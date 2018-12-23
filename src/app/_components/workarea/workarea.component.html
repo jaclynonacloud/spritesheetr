@@ -1,6 +1,6 @@
-<div class="workarea" #workarea>
+<div class="workarea" #workarea (mousedown)="_workspaceService.onClickWorkarea()">
 
-  <app-sprite *ngFor="let spr of _appService.Workspace.Sprites"></app-sprite>
+  <app-sprite *ngFor="let spr of _workspaceService.SpriteData"></app-sprite>
 
   <div class="marquee" #marquee></div>
 

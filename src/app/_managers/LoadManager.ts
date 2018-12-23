@@ -52,12 +52,15 @@ export interface IWorkspace {
 
 
 export class SpriteData {
+    public defaults:ISprite;
     public data:ISprite;
+
     //events
     public onChange:EventEmitter<string> = new EventEmitter();
 
     constructor(data:ISprite) {
         this.data = data;
+        this.defaults = data;
     }
 
 
@@ -99,6 +102,12 @@ export class SpriteData {
     }
     public get Height():number { return this.data.height; }
 
+    //scale
+    // public set Scale(value:number) {
+    //     this.data
+    // }
+
+    //src
     public set Src(value:string) { 
         this.data.src = value;
         this.onChange.emit("src");
@@ -114,5 +123,6 @@ export interface ISprite {
     y:number;
     width:number;
     height:number;
+    scale?:number;
     src?:string;    
 }

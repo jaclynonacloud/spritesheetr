@@ -7,27 +7,27 @@
   <div class="content" [ngClass]="{'collapsed' : _collapsed}">
 
     <!-- CONTEXT MENUS -->
-    <div *ngIf="_appService.ToolsService.CurrentTool == _appService.ToolsService.TOOL.Select || _appService.ToolsService.CurrentTool == _appService.ToolsService.TOOL.Marquee">
+    <div *ngIf="CurrentTool == TOOL.Select || CurrentTool == TOOL.Marquee">
 
       <!-- Sprite Menu -->
-      <div class="group sprite" *ngIf="_appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Sprite" (click)="_onContextClick()">
+      <div class="group sprite" *ngIf="CurrentContext == CONTEXT.Sprite" (click)="_onContextClick()">
         <div class="title">Sprite Menu</div>
-        <div *ngIf="_appService.Workspace.SelectedSprite">
+        <div *ngIf="SelectedSprite">
           <div class="row">
             <label for="sprName">Name</label>
-            <input id="sprName" type="text" [(ngModel)]="_appService.Workspace.SelectedSprite.Name">
+            <input id="sprName" type="text" [(ngModel)]="SelectedSprite.Name" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
           </div>
           <div class="row">
             <label for="sprX">X</label>
-            <input id="sprX" type="number" [(ngModel)]="_appService.Workspace.SelectedSprite.X">
+            <input id="sprX" type="number" [(ngModel)]="SelectedSprite.X" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
             <label for="sprY">Y</label>
-            <input id="sprY" type="number" [(ngModel)]="_appService.Workspace.SelectedSprite.Y">
+            <input id="sprY" type="number" [(ngModel)]="SelectedSprite.Y" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
           </div>
           <div class="row">
             <label for="sprWidth">Size</label>
-            <input id="sprWidth" type="number" [(ngModel)]="_appService.Workspace.SelectedSprite.Width">
+            <input id="sprWidth" type="number" [(ngModel)]="SelectedSprite.Width" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
             <span class="pad">&#215;</span>
-            <input id="sprHeight" type="number" [(ngModel)]="_appService.Workspace.SelectedSprite.Height">
+            <input id="sprHeight" type="number" [(ngModel)]="SelectedSprite.Height" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
           </div>
 
           <div class="row center">
@@ -48,20 +48,20 @@
 
 
       <!-- Workarea Menu -->
-        <div class="group workarea" *ngIf="_appService.ToolsService.CurrentTool == _appService.ToolsService.TOOL.Select && _appService.MenusService.CurrentContext == _appService.MenusService.CONTEXT.Workarea" (click)="_onContextClick()">
+        <div class="group workarea" *ngIf="CurrentTool == TOOL.Select && CurrentContext == CONTEXT.Workarea" (click)="_onContextClick()">
         <div class="title">Workarea Menu</div>
         <div class="half-input row">
-          <input type="number" [(ngModel)]="_appService.Workspace.Workarea.Width">
+          <input type="number" [(ngModel)]="Workarea.Width" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
           <span class="pad">&#215;</span>
-          <input type="number" [(ngModel)]="_appService.Workspace.Workarea.Height">
+          <input type="number" [(ngModel)]="Workarea.Height" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
         </div>
         <div class="row">
-          <input type="color" [(ngModel)]="_appService.Workspace.Workarea.Colour">
+          <input type="color" [(ngModel)]="Workarea.Colour">
         </div>
         <div class="row">
           <span>Use Transparency</span>
           <label class="custom-checkbox">
-          <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="_appService.Workspace.Workarea.Transparent">
+          <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="Workarea.Transparent">
           <span class="custom-checkbox__element"></span>
           </label>
         </div>
@@ -85,19 +85,19 @@
 
 
     <!-- Zoom Menu -->
-    <div class="group zoom" (click)="_onContextClick()" *ngIf="_appService.ToolsService.CurrentTool == _appService.ToolsService.TOOL.Zoom">
+    <div class="group zoom" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Zoom">
       <div class="title">Zoom Menu</div>
       <div class="row center">
-        <button (click)="_appService.Workspace.Workarea.Scale = _appService.Workspace.Workarea.Scale * 2">Zoom In</button>
+        <button (click)="_onScaleChanged(2)">Zoom In</button>
       </div>
       <div class="row center">
-        <button (click)="_appService.Workspace.Workarea.Scale = _appService.Workspace.Workarea.Scale / 2">Zoom Out</button>
+        <button (click)="_onScaleChanged(0.5)">Zoom Out</button>
       </div>
       <div class="row center">
-        <button (click)="_appService.Workspace.Workarea.Scale = 1">Reset</button>
+        <button (click)="_onScaleReset()">Reset</button>
       </div>
       <div class="row center">
-        <span>{{ _appService.Workspace.Scale * 100 }}%</span>
+        <span>{{ _workspaceService.Scale * 100 }}%</span>
       </div>
 
     </div>

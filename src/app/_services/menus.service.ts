@@ -10,11 +10,15 @@ export class MenusService {
   private _menuProps:MenuPropertiesComponent;
 
   private _requestedContexts:string[];
-  private _currentContext:string;
+  private static _currentContext:string;
   private _canChangeMenuContext:boolean = true;
 
   public onContextChange:EventEmitter<string> = new EventEmitter();
   public onQualityChange:EventEmitter<string>  = new EventEmitter();
+  public onScaleChange:EventEmitter<number>  = new EventEmitter();
+  public onDisableShortcuts:EventEmitter<boolean> = new EventEmitter();
+
+  public onScaleReset:EventEmitter<void> = new EventEmitter();
 
   constructor(private _toolsService:ToolsService) { }
 
@@ -25,16 +29,12 @@ export class MenusService {
   }
 
   public addMenuProperties(menuProps:MenuPropertiesComponent):void {
-
     this._menuProps = menuProps;
-    
-    //listen to menu and send to app service
-    menuProps.onQualityChange.subscribe((quality:string) => this.onQualityChange.emit(quality), err => console.warn("Could not change quality! " + err));
   }
 
   public load():void {
     this._requestedContexts = [];
-    this._currentContext = "";
+    MenusService._currentContext = "";
 
     document.addEventListener("mouseup", this._onClickFinished.bind(this));
 
@@ -44,7 +44,7 @@ export class MenusService {
 
   /**Immediately sets the context.  Use CONTEXT. */
   public setContext(context:string):void {
-    this._currentContext = context;
+    MenusService._currentContext = context;
   }
   /**Requests context change on mouse up event.  Use CONTEXT. */
   public requestContext(context:string):void {
@@ -64,14 +64,14 @@ export class MenusService {
     //change the context to the requested context
     //set to the most precedent context
     if(this._requestedContexts.length > 0) {
-      const sortedContexts:string[] = this._requestedContexts.sort((a, b) => Object.values(this.CONTEXT).indexOf(a) > Object.values(this.CONTEXT).indexOf(b) ? 1 : -1);
+      const sortedContexts:string[] = this._requestedContexts.sort((a, b) => Object.values(MenusService.CONTEXT).indexOf(a) > Object.values(MenusService.CONTEXT).indexOf(b) ? 1 : -1);
       console.log(sortedContexts);
-      this._currentContext = sortedContexts[0];
+      MenusService._currentContext = sortedContexts[0];
 
-      this.onContextChange.emit(this._currentContext);
+      this.onContextChange.emit(MenusService._currentContext);
     }
 
-    console.log("SET TO: " + this._currentContext);
+    console.log("SET TO: " + MenusService._currentContext);
 
 
     this._requestedContexts = [];
@@ -79,7 +79,7 @@ export class MenusService {
 
 
   private _onToolChanged(tool:string):void {
-    const TOOLS = this._toolsService.TOOL;
+    const TOOLS = ToolsService.TOOL;
 
     //handle viewable requested contexts
     switch(tool) {
@@ -99,16 +99,16 @@ export class MenusService {
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
   /**Context constants.  Order by click precedence. */
-  public get CONTEXT() { return Object.freeze({
+  public static get CONTEXT() { return Object.freeze({
     "Sprite": "sprite",
     "Workarea": "workarea"
   })};
+  public static get CurrentContext():string { return MenusService._currentContext; }
 
 
   public get MenuBar():MenuBarComponent { return this._menuBar;}
   public get MenuProps():MenuPropertiesComponent { return this._menuProps; }
 
-  public get CurrentContext():string { return this._currentContext; }
-  public get CurrentContextTitle():string { return Object.keys(this.CONTEXT)[Object.values(this.CONTEXT).indexOf(this._currentContext)]; }
+  public get CurrentContextTitle():string { return Object.keys(MenusService.CONTEXT)[Object.values(MenusService.CONTEXT).indexOf(MenusService._currentContext)]; }
 
 }

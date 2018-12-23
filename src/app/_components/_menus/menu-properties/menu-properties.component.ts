@@ -3,6 +3,10 @@ import { MenusService } from '../../../_services/menus.service';
 import { AppService } from '../../../_services/app.service';
 import { IOption } from '../menu-bar/menu-bar.component';
 import { ISprite, SpriteData } from '../../../_managers/LoadManager';
+import { ToolsService } from '../../../_services/tools.service';
+import { WorkspaceService } from '../../../_services/workspace.service';
+import { SpriteComponent } from '../../sprite/sprite.component';
+import { WorkareaComponent } from '../../workarea/workarea.component';
 
 @Component({
   selector: 'app-menu-properties',
@@ -18,24 +22,21 @@ export class MenuPropertiesComponent implements OnInit {
   private _currentQualityClass:string = "q--auto";
   private _currentQuality:string = "<br>";
 
-  public onQualityChange:EventEmitter<string> = new EventEmitter();
-  public onSpriteChange:EventEmitter<ISprite> = new EventEmitter();
-
-  constructor(private _appService:AppService) { }
+  constructor(private _appService:AppService, private _menusService:MenusService, private _workspaceService:WorkspaceService) { }
 
   ngOnInit() {
 
     //setup options
     //quality
     this._qualityOptions = [
-      { title:"Auto", action:{"quality" : "q--auto", "title" : "Auto" } },
-      { title:"Crisp Edges", action:{"quality" : "q--crisp-edges", "title" : "Crisp Edges" } },
-      { title:"Pixelated", action:{"quality" : "q--pixelated", "title" : "Pixelated" } },
-      { title:"Optimize Quality", action:{"quality" : "q--optimize-quality", "title" : "Optimize Quality" } },
+      { title:"Auto", callback:{"quality" : "q--auto", "title" : "Auto" } },
+      { title:"Crisp Edges", callback:{"quality" : "q--crisp-edges", "title" : "Crisp Edges" } },
+      { title:"Pixelated", callback:{"quality" : "q--pixelated", "title" : "Pixelated" } },
+      { title:"Optimize Quality", callback:{"quality" : "q--optimize-quality", "title" : "Optimize Quality" } },
     ];
 
 
-    this._appService.MenusService.addMenuProperties(this);
+    this._menusService.addMenuProperties(this);
 
     this.setQuality("q--auto", "Auto");
   }
@@ -47,15 +48,19 @@ export class MenuPropertiesComponent implements OnInit {
     this._currentQualityClass = quality;
     
     //emit to parent
-    this.onQualityChange.emit(quality);
+    this._menusService.onQualityChange.emit(quality);
   }
   
   private _toggleCollapse():void {
     this._collapsed = !this._collapsed;
   }
+
+  public disableShortcuts(disable:boolean):void {
+    this._menusService.onDisableShortcuts.emit(disable);
+  }
   /*------------------------------------------- EVENTS ---------------------------*/
   private _onMenuClicked():void {
-    this._appService.MenusService.requestClear();
+    this._menusService.requestClear();
   }
 
   private _onContextClick():void {
@@ -65,26 +70,34 @@ export class MenuPropertiesComponent implements OnInit {
 
   //called by template
   private _onQualityChanged(index:number):void {
-    this.setQuality(this._qualityOptions[index].action.quality, this._qualityOptions[index].action.title);
+    this.setQuality(this._qualityOptions[index].callback.quality, this._qualityOptions[index].callback.title);
   }
 
-  private _onSpriteChanged(property:string, value:any):void {
-    // console.log(property, value);
-    // const sprite:SpriteData = this._appService.Workspace.SelectedSprite;
-    // if(sprite == null) return;
+  private _onScaleChanged(scaleOffset:number):void {
+    this._menusService.onScaleChange.emit(scaleOffset);
+  }
 
-    // console.log(sprite);
+  private _onScaleReset():void {
+    this._menusService.onScaleReset.emit();
+  }
 
-    // //toggle value
-    // if(property == "name") sprite.data.name = value as string;
-    // else if(property == "x") sprite.X = parseFloat(value);
-    // else if(property == "y") sprite.Y = parseFloat(value)
-    // else if(property == "width") sprite.Width = parseFloat(value);
-    // else if(property == "height") sprite.Height = parseFloat(value);
+  private _onKeyUp(e:KeyboardEvent):void {
+    //listen for enter key, and blur target
+    if(e.key == "Enter") (e.target as HTMLInputElement).blur();
   }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
   public get CurrentQualityClass():string { return this._currentQualityClass; }
   public get QualityOptions():string[] { return this._qualityOptions.map(opt => opt.title); }
+
+
+  //shorthands
+  public get CurrentTool():string { return ToolsService.CurrentTool; }
+  public get CurrentContext():string { return MenusService.CurrentContext; }
+  public get TOOL() { return ToolsService.TOOL; }
+  public get CONTEXT() { return MenusService.CONTEXT; }
+
+  public get SelectedSprite():SpriteComponent { return this._workspaceService.SelectedSpriteComponent; }
+  public get Workarea():WorkareaComponent { return this._workspaceService.WorkareaComponent; }
 
 }

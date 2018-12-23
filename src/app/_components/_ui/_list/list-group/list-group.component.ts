@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChildren, QueryList, EventEmitter, Output } from '@angular/core';
+import { ListItemComponent } from '../list-item/list-item.component';
 
 @Component({
   selector: 'app-list-group',
@@ -7,31 +8,22 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 export class ListGroupComponent implements OnInit {
   @Input() customClass:string = "";
-  @Input() items:string[];
-  @Output() onChanged:EventEmitter<number> = new EventEmitter();
-  
+  @Input() items:{title:string, callback:any}[];
 
+  @ViewChildren(ListItemComponent) itemComponents : QueryList<ListItemComponent>;
 
-  protected _index:number;
+  @Output() onComplete:EventEmitter<void> = new EventEmitter();
 
   constructor() { }
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
-  ngOnInit() {
+  ngOnInit() {    
   }
   /*------------------------------------------- METHODS --------------------------*/
-  /*------------------------------------------- EVENTS ---------------------------*/
-  private _onClickedItem(e:MouseEvent):void {
-    const item:HTMLElement = (e.target as HTMLElement).parentElement;
-
-    if(item != null) {
-      const items = Array.from(item.parentElement.children);
-      console.log(items);
-      
-      this._index = items.indexOf(item);
-      this.onChanged.emit(this._index);
-    }
+  protected _onClicked():void {
+    this.onComplete.emit();
   }
+  /*------------------------------------------- EVENTS ---------------------------*/
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
 

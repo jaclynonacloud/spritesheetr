@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AppService } from '../../_services/app.service';
+import { WorkspaceService } from '../../_services/workspace.service';
 
 @Component({
   selector: 'app-workspace',
@@ -8,7 +9,7 @@ import { AppService } from '../../_services/app.service';
 })
 export class WorkspaceComponent implements OnInit {
 
-  constructor(private _appService:AppService) { }
+  constructor(private _workspaceService:WorkspaceService) { }
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   ngOnInit() {
@@ -16,7 +17,7 @@ export class WorkspaceComponent implements OnInit {
   /*------------------------------------------- METHODS --------------------------*/
   /*------------------------------------------- EVENTS ---------------------------*/
   private _onWorkareaClicked():void {
-    this._appService.MenusService.requestContext(this._appService.MenusService.CONTEXT.Workarea);
+    // this._appService.MenusService.requestContext(this._appService.MenusService.CONTEXT.Workarea);
   }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/

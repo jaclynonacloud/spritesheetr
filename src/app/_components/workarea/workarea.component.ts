@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { MenusService } from '../../_services/menus.service';
-import { AppService } from '../../_services/app.service';
+import { WorkspaceService } from '../../_services/workspace.service';
 
 @Component({
   selector: 'app-workarea',
@@ -21,13 +20,14 @@ export class WorkareaComponent implements OnInit {
 
   public onScale:EventEmitter<number> = new EventEmitter();
 
-  constructor(private _appService:AppService, private _menusService:MenusService) { 
-    this._scale = 1;
-  }
+  constructor(private _workspaceService:WorkspaceService) { }
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   ngOnInit() {
-    this._appService.Workspace.addWorkarea(this);
+    this._workspaceService.addWorkarea(this);
+    //setup initials
+    this.Scale = 1;
+    this.Colour = "#8C7770";
   }
   /*------------------------------------------- METHODS --------------------------*/
   /*------------------------------------------- EVENTS ---------------------------*/
@@ -69,6 +69,8 @@ export class WorkareaComponent implements OnInit {
     this.Height = this._height;
 
     this.onScale.emit(this._scale);
+
+    this.element.nativeElement.style.transform = `scale(${this._scale})`;
   }
 
 }

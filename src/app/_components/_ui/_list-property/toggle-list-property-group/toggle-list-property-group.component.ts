@@ -9,13 +9,14 @@ import { ToggleListGroupComponent } from '../../_list/toggle-list-group/toggle-l
 export class ToggleListPropertyGroupComponent extends ToggleListGroupComponent implements OnInit {
 
   @Input() text:string;
-  @Input() itemProperties:{ title:string, property:string };
+  @Input() itemProperties:{ title:string, property:string, callback:any }[];
 
   constructor() {
     super();
   }
 
   ngOnInit() {
+    super.ngOnInit();
   }
 
 }

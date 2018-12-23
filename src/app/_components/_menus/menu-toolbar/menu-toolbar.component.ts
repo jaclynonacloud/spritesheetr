@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { AppService } from '../../../_services/app.service';
+import { ToolsService } from '../../../_services/tools.service';
 
 @Component({
   selector: 'app-menu-toolbar',
@@ -17,5 +18,10 @@ export class MenuToolbarComponent implements OnInit {
   }
 
   public get Element():HTMLElement { return <HTMLElement>this._element.nativeElement; }
+
+
+  public get CurrentTool():string { return ToolsService.CurrentTool; }
+  public get TOOL() { return ToolsService.TOOL; }
+
 
 }

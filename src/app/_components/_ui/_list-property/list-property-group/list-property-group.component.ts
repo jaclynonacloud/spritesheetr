@@ -1,5 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, QueryList, ViewChildren } from '@angular/core';
 import { ListGroupComponent } from '../../_list/list-group/list-group.component';
+import { ListPropertyItemComponent } from '../list-property-item/list-property-item.component';
 
 @Component({
   selector: 'app-list-property-group',
@@ -10,6 +11,8 @@ export class ListPropertyGroupComponent extends ListGroupComponent implements On
 
   @Input() itemProperties:{ title:string, property:string };
 
+  @ViewChildren(ListPropertyItemComponent) itemComponents : QueryList<ListPropertyItemComponent>;
+
   constructor() { 
     super();
   }
@@ -19,20 +22,6 @@ export class ListPropertyGroupComponent extends ListGroupComponent implements On
   }
   /*------------------------------------------- METHODS --------------------------*/
   /*------------------------------------------- EVENTS ---------------------------*/
-  private _onClickedPropItem(e:MouseEvent):void {
-    const item:HTMLElement = (e.target as HTMLElement).parentElement;
-
-    console.log("CALLED THISSSSS");
-    console.log(item);
-
-    if(item != null) {
-      const items = Array.from(item.parentElement.children);
-      console.log(items);
-      
-      this._index = items.indexOf(item);
-      this.onChanged.emit(this._index);
-    }
-  }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
 

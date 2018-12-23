@@ -6,6 +6,7 @@
 .sprite {
     position: relative;
     pointer-events: none;
+    user-select: none;
 
     &__image {
         position: absolute;

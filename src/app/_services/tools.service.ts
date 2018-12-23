@@ -1,13 +1,12 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { MenuBarComponent } from '../_components/_menus/menu-bar/menu-bar.component';
 import { MenuToolbarComponent } from '../_components/_menus/menu-toolbar/menu-toolbar.component';
-import { WorkspaceManager } from '../_managers/WorkspaceManager';
 
 @Injectable()
 export class ToolsService {
 
   private _toolbar:MenuToolbarComponent;
-  private _currentTool:string;
+  private static _currentTool:string;
 
   public onToolChanged:EventEmitter<string> = new EventEmitter();
 
@@ -17,17 +16,18 @@ export class ToolsService {
   /*------------------------------------------- METHODS --------------------------*/
   public addToolbar(toolbar:MenuToolbarComponent):void {
     this._toolbar = toolbar;
+
+    this.setTool(ToolsService.TOOL.Select);
   }
 
   public load():void {
-    this._currentTool = "";
   }
 
   public setTool(tool:string):void {
-    if(this._currentTool == tool) return;
+    if(ToolsService._currentTool == tool) return;
     
-    if(this._currentTool != "") {
-      const toolEl:HTMLElement = this._toolbar.Element.querySelector(`.${this._currentTool}`) as HTMLElement;
+    if(ToolsService._currentTool != "") {
+      const toolEl:HTMLElement = this._toolbar.Element.querySelector(`.${ToolsService._currentTool}`) as HTMLElement;
       if(toolEl != null) toolEl.classList.remove("selected");
     }
 
@@ -35,7 +35,7 @@ export class ToolsService {
     const toolEl:HTMLElement = this._toolbar.Element.querySelector(`.${tool}`) as HTMLElement;
     if(toolEl != null) toolEl.classList.add("selected");
 
-    this._currentTool = tool;
+    ToolsService._currentTool = tool;
     console.log("Tool set to : " + tool);
     this.onToolChanged.emit(tool);
   }
@@ -43,7 +43,7 @@ export class ToolsService {
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
   /**Tool constants. */
-  public get TOOL() { return Object.freeze({
+  public static get TOOL() { return Object.freeze({
     "Select" : "select",
     "Marquee" : "marquee",
     "Move" : "move",
@@ -56,5 +56,5 @@ export class ToolsService {
 
   public get Toolbar():MenuToolbarComponent { return this._toolbar;}
 
-  public get CurrentTool():string { return this._currentTool; }
+  public static get CurrentTool():string { return ToolsService._currentTool; }
 }

@@ -9,7 +9,7 @@ import { ToggleButtonComponent } from '../../toggle-button/toggle-button.compone
 export class ToggleListGroupComponent implements OnInit {
 
   @Input() text:string;
-  @Input() items:string[];
+  @Input() items:{title:string, callback:any}[];
 
   @Input() hoverable:boolean = true;
   @Input() disabled:boolean = false;
@@ -17,6 +17,7 @@ export class ToggleListGroupComponent implements OnInit {
   @Input() customClass:string = "";
   
   @Output() onChanged:EventEmitter<number> = new EventEmitter();
+  @Output() onClicked:EventEmitter<{index:number, e:Event}> = new EventEmitter();
 
   public isOpen:boolean = false;
 
@@ -38,9 +39,7 @@ export class ToggleListGroupComponent implements OnInit {
     this.isOpen = !this.isOpen;
   }
 
-  private _onChanged(index:number):void {
-    console.log("DID I GET AN INDEX? " + index);
-    this.onChanged.emit(index);
+  protected _onComplete():void {
     this.isOpen = false;
   }
 

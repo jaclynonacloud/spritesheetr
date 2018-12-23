@@ -10,7 +10,6 @@ import { ToggleButtonComponent } from './_components/_ui/toggle-button/toggle-bu
 import { MenuToolbarComponent } from './_components/_menus/menu-toolbar/menu-toolbar.component';
 import { WorkareaComponent } from './_components/workarea/workarea.component';
 import { SpriteComponent } from './_components/sprite/sprite.component';
-import { SpritesService } from './_services/sprites.service';
 import { MenusService } from './_services/menus.service';
 import { StatesService } from './_services/states.service';
 import { AppService } from './_services/app.service';
@@ -21,6 +20,7 @@ import { ListPropertyItemComponent } from './_components/_ui/_list-property/list
 import { ListPropertyGroupComponent } from './_components/_ui/_list-property/list-property-group/list-property-group.component';
 import { ToggleListPropertyGroupComponent } from './_components/_ui/_list-property/toggle-list-property-group/toggle-list-property-group.component';
 import { ToolsService } from './_services/tools.service';
+import { WorkspaceService } from './_services/workspace.service';
 
 @NgModule({
   declarations: [
@@ -43,7 +43,7 @@ import { ToolsService } from './_services/tools.service';
     BrowserModule,
     FormsModule
   ],
-  providers: [AppService, SpritesService, MenusService, StatesService, ToolsService],
+  providers: [AppService, MenusService, StatesService, ToolsService, WorkspaceService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
