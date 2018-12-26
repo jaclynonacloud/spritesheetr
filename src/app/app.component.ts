@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AppService } from './_services/app.service';
+import { InputManager } from './_managers/InputManager';
 
 @Component({
   selector: 'app-root',
@@ -13,9 +14,12 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit() {
+    //load manager
+    new InputManager(); //static
     //load service
     this._appService.load();    
     
+
   }
   
 }

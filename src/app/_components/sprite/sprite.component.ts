@@ -22,6 +22,11 @@ export class SpriteComponent implements OnInit {
   private _quality:string;
   private _scale:number;
 
+  //used for movement
+  private _lastPosition:{x:number, y:number};
+  private _tempPosition:{x:number, y:number};
+  
+
   //flags
   private _isSelectable:boolean = false;
   private _isSelected:boolean = false;
@@ -34,6 +39,8 @@ export class SpriteComponent implements OnInit {
 
     console.log("IMAGE");
     console.log(this._image);
+    this._lastPosition = {x:0, y:0};
+    this._tempPosition = {x:0, y:0};
 
     //add to sprite manager
     this._workspaceService.addSprite(this);
@@ -78,8 +85,8 @@ export class SpriteComponent implements OnInit {
     this.Element.classList.add("selected");
   }
   public deselect():void {
-    console.log("DESELECT ME!");
-    console.log(this.Element);
+    // console.log("DESELECT ME!");
+    // console.log(this.Element);
     this._isSelected = false;
 
     this.Element.classList.remove("selected");
@@ -134,32 +141,16 @@ export class SpriteComponent implements OnInit {
   }
 
 
-  public get Name():string { return this._data.name; }
-  public set Name(value:string) { this._data.name = value; }
-
-  public get X():number { return this._data.x; }
-  public set X(value:number) {
-    this._data.x = value;
-    //set in template
-    (this._element.nativeElement.parentElement as HTMLElement).style.left = `${value}px`;
+  public setLastPosition():void {
+    this._lastPosition.x = this.X;
+    this._lastPosition.y = this.Y;
   }
-  public get Y():number { return this._data.y; }
-  public set Y(value:number) {
-    this._data.y = value;
-    //set in template
-    (this._element.nativeElement.parentElement as HTMLElement).style.top = `${value}px`;
-  }
-  public get Width():number { return this._data.width; }
-  public set Width(value:number) {
-    this._data.width = value;
-    //set in template
-    (this._element.nativeElement.parentElement as HTMLElement).style.width = `${value}px`;
-  }
-  public get Height():number { return this._data.height; }
-  public set Height(value:number) {
-    this._data.height = value;
-    //set in template
-    (this._element.nativeElement.parentElement as HTMLElement).style.height = `${value}px`;
+  public setTempPositionOffset(x:number, y:number):void {
+    this._tempPosition.x = x;
+    this._tempPosition.y = y;
+    //move stuff
+    this.X = this._tempPosition.x + this._lastPosition.x;
+    this.Y = this._tempPosition.y + this._lastPosition.y;
   }
 
   //tests
@@ -207,6 +198,37 @@ export class SpriteComponent implements OnInit {
       width: this.Element.getBoundingClientRect().width,
       height: this.Element.getBoundingClientRect().height
     };
+  }
+
+
+
+
+  public get Name():string { return this._data.name; }
+  public set Name(value:string) { this._data.name = value; }
+
+  public get X():number { return this._data.x; }
+  public set X(value:number) {
+    this._data.x = value;
+    //set in template
+    (this._element.nativeElement.parentElement as HTMLElement).style.left = `${value}px`;
+  }
+  public get Y():number { return this._data.y; }
+  public set Y(value:number) {
+    this._data.y = value;
+    //set in template
+    (this._element.nativeElement.parentElement as HTMLElement).style.top = `${value}px`;
+  }
+  public get Width():number { return this._data.width; }
+  public set Width(value:number) {
+    this._data.width = value;
+    //set in template
+    (this._element.nativeElement.parentElement as HTMLElement).style.width = `${value}px`;
+  }
+  public get Height():number { return this._data.height; }
+  public set Height(value:number) {
+    this._data.height = value;
+    //set in template
+    (this._element.nativeElement.parentElement as HTMLElement).style.height = `${value}px`;
   }
 
 }

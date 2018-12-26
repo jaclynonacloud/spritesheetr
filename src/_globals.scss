@@ -32,7 +32,9 @@ $size-tablet: "screen and (max-width: 768px)";
 .hide {
     display: none !important;
 }
-
+.text-center {
+    text-align: center;
+}
 
 
 %button {

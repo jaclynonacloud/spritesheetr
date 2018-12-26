@@ -6,6 +6,73 @@
 
   <div class="content" [ngClass]="{'collapsed' : _collapsed}">
 
+
+    <!-- TOOL SPECIFIC MENUS -->
+    <!-- Select Menu -->
+    <div class="group select" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Select">
+        <div class="title">Select Options</div>
+        <div class="row center first">
+          <button>Select All</button>
+        </div>
+        <div class="row center">
+          <button >Deselect All</button>
+        </div>
+        <div class="row center">
+          <button>-</button>
+          <span class="input-size">Selection</span>
+          <button>+</button>
+        </div>
+        <div class="row center">
+          <span>{{ _workspaceService.Scale * 100 }}%</span>
+        </div>
+  
+      </div>
+      <!-- /Select Menu -->
+  
+      <!-- Move Menu -->
+      <div class="group move" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Move">
+        <div class="title">Move Options</div>
+        <div class="row center text-center bottom first">Selected Sprites: {{ SelectedSpritesCount }}</div>
+        <div class="row text-center small" *ngIf="SelectedSpritesCount == 0">Select some sprites with the selection or marquee tool!</div>
+        <div class="row">
+          <label for="moveIncrement">Increment</label>
+          <input id="moveIncrement" type="number" [(ngModel)]="_workspaceService.MoveIncrement" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)" min="1" max="5000">
+        </div>
+        <div class="row center">
+          <button (click)="_onScaleChanged(0.5)">Zoom Out</button>
+        </div>
+        <div class="row center">
+          <button (click)="_onScaleReset()">Reset</button>
+        </div>
+        <div class="row center">
+          <span>{{ _workspaceService.Scale * 100 }}%</span>
+        </div>
+  
+      </div>
+      <!-- /Move Menu -->
+
+      <!-- Zoom Menu -->
+      <div class="group zoom" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Zoom">
+        <div class="title">Zoom Options</div>
+        <div class="row center first">
+          <button (click)="_onScaleChanged(2)">Zoom In</button>
+        </div>
+        <div class="row center">
+          <button (click)="_onScaleChanged(0.5)">Zoom Out</button>
+        </div>
+        <div class="row center">
+          <button (click)="_onScaleReset()">Reset</button>
+        </div>
+        <div class="row center">
+          <span>{{ _workspaceService.Scale * 100 }}%</span>
+        </div>
+  
+      </div>
+      <!-- /Zoom Menu -->
+
+
+      
+
     <!-- CONTEXT MENUS -->
     <div *ngIf="CurrentTool == TOOL.Select || CurrentTool == TOOL.Marquee">
 
@@ -13,7 +80,7 @@
       <div class="group sprite" *ngIf="CurrentContext == CONTEXT.Sprite" (click)="_onContextClick()">
         <div class="title">Sprite Menu</div>
         <div *ngIf="SelectedSprite">
-          <div class="row">
+          <div class="row first">
             <label for="sprName">Name</label>
             <input id="sprName" type="text" [(ngModel)]="SelectedSprite.Name" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
           </div>
@@ -50,7 +117,7 @@
       <!-- Workarea Menu -->
         <div class="group workarea" *ngIf="CurrentTool == TOOL.Select && CurrentContext == CONTEXT.Workarea" (click)="_onContextClick()">
         <div class="title">Workarea Menu</div>
-        <div class="half-input row">
+        <div class="half-input row first">
           <input type="number" [(ngModel)]="Workarea.Width" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
           <span class="pad">&#215;</span>
           <input type="number" [(ngModel)]="Workarea.Height" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)">
@@ -72,7 +139,7 @@
         <hr>
 
         <app-toggle-list-group customClass="custom-button" [hoverable]="false" text="Render Quality" [items]="QualityOptions" (onChanged)="_onQualityChanged($event)"></app-toggle-list-group>
-        <div class="row small">
+        <div class="row small first">
           <span>Quality: </span>
           <span [innerHTML]="_currentQuality"></span>
         </div>
@@ -83,25 +150,6 @@
 
     </div>
 
-
-    <!-- Zoom Menu -->
-    <div class="group zoom" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Zoom">
-      <div class="title">Zoom Menu</div>
-      <div class="row center">
-        <button (click)="_onScaleChanged(2)">Zoom In</button>
-      </div>
-      <div class="row center">
-        <button (click)="_onScaleChanged(0.5)">Zoom Out</button>
-      </div>
-      <div class="row center">
-        <button (click)="_onScaleReset()">Reset</button>
-      </div>
-      <div class="row center">
-        <span>{{ _workspaceService.Scale * 100 }}%</span>
-      </div>
-
-    </div>
-    <!-- /Zoom Menu -->
 
   </div>
 

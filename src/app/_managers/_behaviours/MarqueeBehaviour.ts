@@ -1,24 +1,5 @@
-import { SpriteComponent } from "../_components/sprite/sprite.component";
 import { EventEmitter } from "@angular/core";
-
-export class SelectBehaviour implements IBehaviour {
-
-
-    //emitters
-    public onBehaviourChange:EventEmitter<any> = new EventEmitter();
-
-    constructor() {
-    }
-
-    public start():void {
-    }
-    public finish():void {    
-    }
-}
-
-
-
-
+import { IBehaviour } from "./Behaviour";
 
 export class MarqueeBehaviour implements IBehaviour {
     private _workareaElement:HTMLElement;
@@ -36,7 +17,7 @@ export class MarqueeBehaviour implements IBehaviour {
     private _onMouseEndEvent = (e:MouseEvent) => { this._onMarqueeEnd(e) };
 
     //emitters
-    public onBehaviourChange:EventEmitter<any> = new EventEmitter();
+    public onMarqueeChange:EventEmitter<{x:number, y:number, width:number, height:number}> = new EventEmitter();
 
     constructor(workareaElement:HTMLElement, marqueeElement:HTMLElement) {
         this._workareaElement = workareaElement;
@@ -94,7 +75,7 @@ private _onMarqueeDrag(e:MouseEvent):void {
     this._marqueeElement.style.height = `${height - y}px`;
 
     //emit change
-    this.onBehaviourChange.emit(this._dragRect);
+    this.onMarqueeChange.emit(this._dragRect);
 
     // //test whether the given sprite is within the bounds
     // this._sprites.Sprites.forEach((spr:SpriteComponent) => {
@@ -111,7 +92,7 @@ private _onMarqueeEnd(e:MouseEvent):void {
     this._onDragging = false;
 
     //emit change
-    this.onBehaviourChange.emit(this._dragRect);
+    this.onMarqueeChange.emit(this._dragRect);
 
     //turn off the marquee
     this.clear(false);
@@ -135,14 +116,11 @@ public finish():void {
     this._workareaElement.parentElement.removeEventListener("mouseup", this._onMouseEndEvent);
     this._workareaElement.parentElement.removeEventListener("mouseleave", this._onMouseEndEvent);
 
+    //stop the observers from listening
+    this.onMarqueeChange.observers.forEach(ob => (ob as any).unsubscribe());
+
 }
 /*------------------------------------------- GETTERS & SETTERS ----------------*/
 
 }
 
-export interface IBehaviour {
-    start():void;
-    finish():void;
-
-    readonly onBehaviourChange:EventEmitter<any>;
-}

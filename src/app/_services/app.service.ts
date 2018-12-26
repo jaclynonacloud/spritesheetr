@@ -6,15 +6,12 @@ import { LoadManager, IWorkspace, ISprite } from '../_managers/LoadManager';
 import { SpriteComponent } from '../_components/sprite/sprite.component';
 import { ToolsService } from './tools.service';
 import { WorkspaceService } from './workspace.service';
+import { InputManager } from '../_managers/InputManager';
 
 @Injectable()
 export class AppService {
   //toggles
   private static _currentTool:string;
-
-  private _keys:string[];
-  private _allowShortcuts:boolean;
-  private static _isShiftPressed:boolean;
 
   //create managers
   // private _workspaceManager:WorkspaceManager;
@@ -27,10 +24,6 @@ export class AppService {
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   /*------------------------------------------- METHODS --------------------------*/
   public load():void {
-
-    this._keys = [];
-    this._allowShortcuts = true;
-    AppService._isShiftPressed = false;
 
     //load services
     this._menusService.load();
@@ -64,19 +57,32 @@ export class AppService {
     // this._workspaceService.onScale.subscribe(this._onScale.bind(this), err => console.warn("Error scaling workarea. " + err));
     this._loadManager.onLoaded.subscribe(this._onLoadedWorkspace.bind(this), err => console.log("Could not load workspace! " + err));
 
-    document.addEventListener("keydown", this._onKeyDown.bind(this));
-    document.addEventListener("keyup", this._onKeyUp.bind(this));
+
+    //register all keys used in application
+    InputManager.registerKeys("new", AppService.SHORTCUTS.New, this.new.bind(this));
+    InputManager.registerKeys("open", AppService.SHORTCUTS.Open, this.open.bind(this));
+    InputManager.registerKeys("save", AppService.SHORTCUTS.Save, this.save.bind(this));
+    InputManager.registerKeys("export", AppService.SHORTCUTS.Export, this.export.bind(this));
+
+    console.warn("SETTING KEYS");
+
+    const TOOL = ToolsService.TOOL;
+    InputManager.registerKeys("select", AppService.SHORTCUTS.Select, () => this._toolsService.setTool(TOOL.Select));
+    InputManager.registerKeys("marquee", AppService.SHORTCUTS.Marquee, () => this._toolsService.setTool(TOOL.Marquee));
+    InputManager.registerKeys("move", AppService.SHORTCUTS.Move, () => this._toolsService.setTool(TOOL.Move));
+    InputManager.registerKeys("scale", AppService.SHORTCUTS.Scale, () => this._toolsService.setTool(TOOL.Scale));
+    InputManager.registerKeys("pan", AppService.SHORTCUTS.Pan, () => this._toolsService.setTool(TOOL.Pan));
+    InputManager.registerKeys("zoom", AppService.SHORTCUTS.Zoom, () => this._toolsService.setTool(TOOL.Zoom));
+    InputManager.registerKeys("delete", AppService.SHORTCUTS.Delete, () => this._toolsService.setTool(TOOL.Delete));
+
+
+    InputManager.registerKeys("undo", AppService.SHORTCUTS.Undo, this.undo.bind(this));
+    InputManager.registerKeys("redo", AppService.SHORTCUTS.Redo, this.redo.bind(this));
+    InputManager.registerKeys("copy", AppService.SHORTCUTS.Copy, this.copy.bind(this));
+    InputManager.registerKeys("paste", AppService.SHORTCUTS.Paste, this.paste.bind(this));
+
+    InputManager.AllowKeyboard = true;
   }
-
-
-  private _hasKeysPressed(shortcutKeys:string[]):boolean {
-    let hasKeys:boolean = true;
-    shortcutKeys.forEach(key => {
-      if(this._keys.indexOf(key) == -1) hasKeys = false;
-    });
-    return hasKeys;
-  }
-
 
 
   public createSprite(sprite:ISprite):void {
@@ -93,10 +99,14 @@ export class AppService {
     console.log("Open spritesheetr file!");
     this._menusService.MenuBar.OpenDialogElement.click();
 
+    //kill keys
+    InputManager.reset();
+
     //listen for change
     const fileChange = (e:Event) => {
       console.log("I HAVE CHANGED!");
       this._loadManager.load(e);
+      
 
       //remove event listener
       this._menusService.MenuBar.OpenDialogElement.removeEventListener("change", fileChange);
@@ -168,7 +178,7 @@ export class AppService {
   }
 
   private _onDisableShortcuts(disable:boolean):void {
-    this._allowShortcuts = !disable;
+    InputManager.AllowKeyboard = !disable;
   }
 
   private _onLoadedWorkspace(workspace:IWorkspace):void {
@@ -181,60 +191,6 @@ export class AppService {
     this._workspaceService.resizeWorkarea(workspace.workWidth, workspace.workHeight);
   }
 
-
-  private _onKeyDown(e:KeyboardEvent) {
-
-    if(!this._allowShortcuts) return;
-
-    //don't override F keys
-    // if(!e.key.match(/^[f|F]\d$/g)) {
-    //   e.preventDefault();
-    //   e.stopImmediatePropagation();
-    // }
-    //add key to the list if it doesn't already exist
-    if(!this._keys.includes(e.key)) {
-      this._keys.push(e.key);
-    }
-
-    //modifier keys
-    if(e.key == "Shift") AppService._isShiftPressed = true;
-
-    
-
-    //test keys
-    //listen for key combinations
-    //single keys
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Select)) this._toolsService.setTool(ToolsService.TOOL.Select);
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Marquee)) this._toolsService.setTool(ToolsService.TOOL.Marquee);
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Move)) this._toolsService.setTool(ToolsService.TOOL.Move);
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Scale)) this._toolsService.setTool(ToolsService.TOOL.Scale);
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Pan)) this._toolsService.setTool(ToolsService.TOOL.Pan);
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Zoom)) this._toolsService.setTool(ToolsService.TOOL.Zoom);
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Delete)) this._toolsService.setTool(ToolsService.TOOL.Delete);
-
-    //multi keys
-    if(this._hasKeysPressed(AppService.SHORTCUTS.New)) this.new();
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Open)) this.open();
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Save)) this.save();
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Export)) this.export();
-    //
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Undo)) this.undo();
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Redo)) this.redo();
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Copy)) this.copy();
-    if(this._hasKeysPressed(AppService.SHORTCUTS.Paste)) this.paste();
-
-
-    return false;
-  }
-  private _onKeyUp(e:KeyboardEvent) {
-    // this._keys = this._keys.splice(this._keys.indexOf(e.key), 1);
-    this._keys = this._keys.filter(key => key != e.key);
-
-    //modifier keys
-    if(e.key == "Shift") AppService._isShiftPressed = false;
-  }
-
-
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
   public static get CurrentTool():string { return AppService._currentTool; }
@@ -245,8 +201,6 @@ export class AppService {
   public get WorkspaceService():WorkspaceService { return this._workspaceService; }
 
   // public get Workspace():WorkspaceManager { return this._workspaceManager; }
-
-  public static get IsShiftPressed():boolean { return this._isShiftPressed; }
 
   public get SpriteData():ISprite[] { return this._spriteData; }
 
@@ -288,13 +242,5 @@ export class AppService {
     return AppService.GetShortcut(shortcutKeys);
   }
   public get shortcuts() { return AppService.SHORTCUTS; }
-
-
-
-  // @HostListener('document:keydown', ['$event'])
-  // handleKeyboardEvent(event: KeyboardEvent) { 
-  //   //this.key = event.key;
-  //   console.log(event.key);
-  // }
 
 }

@@ -98,6 +98,7 @@ export class MenuPropertiesComponent implements OnInit {
   public get CONTEXT() { return MenusService.CONTEXT; }
 
   public get SelectedSprite():SpriteComponent { return this._workspaceService.SelectedSpriteComponent; }
+  public get SelectedSpritesCount():number { return this._workspaceService.SelectedSpriteComponents.length; }
   public get Workarea():WorkareaComponent { return this._workspaceService.WorkareaComponent; }
 
 }

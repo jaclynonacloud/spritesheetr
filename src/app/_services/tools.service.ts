@@ -25,6 +25,7 @@ export class ToolsService {
 
   public setTool(tool:string):void {
     if(ToolsService._currentTool == tool) return;
+    if(this._toolbar == null) return;
     
     if(ToolsService._currentTool != "") {
       const toolEl:HTMLElement = this._toolbar.Element.querySelector(`.${ToolsService._currentTool}`) as HTMLElement;

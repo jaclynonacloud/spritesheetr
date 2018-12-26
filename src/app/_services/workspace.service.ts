@@ -1,10 +1,16 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { SpriteComponent } from '../_components/sprite/sprite.component';
 import { WorkareaComponent } from '../_components/workarea/workarea.component';
-import { SelectBehaviour, MarqueeBehaviour, IBehaviour } from '../_managers/BehavioursManager';
 import { ISprite } from '../_managers/LoadManager';
 import { ToolsService } from './tools.service';
 import { MenusService } from './menus.service';
+import { AppService } from './app.service';
+import { InputManager } from '../_managers/InputManager';
+//behaviours
+import { IBehaviour } from '../_managers/_behaviours/Behaviour';
+import { MarqueeBehaviour } from '../_managers/_behaviours/MarqueeBehaviour';
+import { MoveBehaviour } from '../_managers/_behaviours/MoveBehaviour';
+import { SelectBehaviour } from '../_managers/_behaviours/SelectBehaviour';
 
 
 /**
@@ -25,11 +31,13 @@ export class WorkspaceService {
   private _spriteLoadIndex:number;
 
   private _marqueeThreshold:number = 0.5;
+  private _moveIncrement:number = 1;
 
   //behaviours
   private _currentBehaviour:IBehaviour;
   private _selectBehaviour:SelectBehaviour;
-  private _marqueeBehaviour:SelectBehaviour;
+  private _marqueeBehaviour:MarqueeBehaviour;
+  private _moveBehaviour:MoveBehaviour;
 
   public onRequestContext:EventEmitter<string> = new EventEmitter();
   public onSetContext:EventEmitter<string> = new EventEmitter();
@@ -58,6 +66,7 @@ export class WorkspaceService {
     this._currentBehaviour = null;
     this._selectBehaviour = new SelectBehaviour();
     this._marqueeBehaviour = new MarqueeBehaviour(this._workareaComponent.Element, this._workareaComponent.MarqueeElement);
+    this._moveBehaviour = new MoveBehaviour(this._workareaComponent.Element);
   }
 
   public setTitle(title:string):void {
@@ -120,7 +129,8 @@ export class WorkspaceService {
    * @param spriteComponent The Sprite Component to select.
    */
   public selectSprite(spriteComponent:SpriteComponent):void {
-    this._selectedSpriteComponents.unshift(spriteComponent);
+    if(!this._selectedSpriteComponents.includes(spriteComponent))
+      this._selectedSpriteComponents.unshift(spriteComponent);
 
     console.log("SELECT");
 
@@ -185,15 +195,12 @@ export class WorkspaceService {
     if(this._currentBehaviour == behaviour) return;
 
     if(this._currentBehaviour != null) {
-      if(!this._currentBehaviour.onBehaviourChange.observers) this._currentBehaviour.onBehaviourChange.unsubscribe();
       this._currentBehaviour.finish();
     }
 
     this._currentBehaviour = behaviour;
 
     //start new behaviour
-    //subscribe to the new behaviour
-    this._currentBehaviour.onBehaviourChange.subscribe(result => this._onBehaviourChange(result));
     this._currentBehaviour.start();
   }
   
@@ -210,8 +217,10 @@ export class WorkspaceService {
     switch(ToolsService.CurrentTool) {
       case ToolsService.TOOL.Select:
         //check key modifiers
-        this.deselectAllSprites();
-        this.selectSprite(spriteComponent);
+        // this.deselectAllSprites();
+        console.log("IS SHIFT?: " + InputManager.IsShiftPressed);
+        if(InputManager.IsShiftPressed) { this.selectSprite(spriteComponent); }
+        else this.selectSingleSprite(spriteComponent);
 
     }
 
@@ -232,7 +241,6 @@ export class WorkspaceService {
     //change behaviour of workspace based on tool
     let newBehaviour:IBehaviour = this._currentBehaviour;
 
-    // const tools = this._appService.ToolsService.TOOL;
     const tools = ToolsService.TOOL;
 
     switch(tool) {
@@ -243,43 +251,57 @@ export class WorkspaceService {
       case tools.Marquee:
       this.changeBehaviour(this._marqueeBehaviour);
         this.disableAllSprites();
+        //listen to events
+        this._marqueeBehaviour.onMarqueeChange.subscribe(rect => this._onMarqueeChange(rect));
         break;
       case tools.Move:
+        this.changeBehaviour(this._moveBehaviour);
+        this.disableAllSprites();
+        //listen to events
+        this._moveBehaviour.onStartMove.subscribe(() => this._onMoveStart());
+        this._moveBehaviour.onMove.subscribe((pos) => this._onMove(pos));
+        break;
       case tools.Scale:
       case tools.Pan:
       case tools.Zoom:
       case tools.Delete:
+        this.disableAllSprites();
         break;
     }
   }
 
 
-  private _onBehaviourChange(result:any):void {
-    //handle changes based on tool
+  // MARQUEE
+  private _onMarqueeChange(rect:{x:number, y:number, width:number, height:number}):void {
 
-    const TOOL = ToolsService.TOOL;
+    //result is a rect
+    const {x, y, width, height} = rect;
+    // //test whether the given sprite is within the bounds
+    this._spriteComponents.forEach((spr:SpriteComponent) => {
+        // spr.writeRect();
+        if(spr.isWithinBounds(x, y, width, height, this._marqueeThreshold)) {
+            this.selectSprite(spr);
+        }
+        else { 
+          //check key modifiers
+          this.deselectSprite(spr);
+        }
+    });
 
-    switch(ToolsService.CurrentTool) {
-      /*-------- MARQUEE Logic --------*/
-      case TOOL.Marquee:
-        console.log("THIS IS MY LOGIC");
-        //result is a rect
-        const {x, y, width, height} = result;
-        // //test whether the given sprite is within the bounds
-        this._spriteComponents.forEach((spr:SpriteComponent) => {
-            spr.writeRect();
-            if(spr.isWithinBounds(x, y, width, height, this._marqueeThreshold)) {
-                this.selectSprite(spr);
-            }
-            else { 
-              //check key modifiers
-              spr.deselect();
-            }
-        });
-        break;
 
-    }
+  }
 
+  // MOVE
+  private _onMoveStart():void {
+    console.log("MOVING");
+    this._selectedSpriteComponents.forEach(spr => spr.setLastPosition());
+  }
+  private _onMove(pos:{x:number, y:number}):void {
+    const { x, y } = pos;
+    // console.log("X: " + x + ", Y: " + y);
+    this._selectedSpriteComponents.forEach((spr:SpriteComponent) => {
+      spr.setTempPositionOffset(x, y);
+    });
   }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
@@ -287,6 +309,9 @@ export class WorkspaceService {
   public get Title():string { return this._title; }
   public get Quality():string { return this._quality; }
   public get Scale():number { return this._scale; }
+
+  public set MoveIncrement(value:number) { this._moveIncrement = value; }
+  public get MoveIncrement():number { return this._moveIncrement; }
 
   public set SpriteData(spriteData:ISprite[]) { this._spriteData = spriteData; }
   public get SpriteData():ISprite[] { return this._spriteData; }
