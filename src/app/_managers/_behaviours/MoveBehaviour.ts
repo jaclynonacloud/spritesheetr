@@ -8,9 +8,6 @@ export class MoveBehaviour implements IBehaviour {
     private _dragPosition:{x:number, y:number};
     private _workareaOffset:{x:number, y:number};
 
-    //flags
-    private _onDragging:boolean = false;
-
     //events
     private _onMouseStartEvent = (e:MouseEvent) => { this._onDragStart(e) };
     private _onMouseMoveEvent = (e:MouseEvent) => { this._onDrag(e) };
@@ -19,6 +16,7 @@ export class MoveBehaviour implements IBehaviour {
     //emitters
     public onStartMove:EventEmitter<void> = new EventEmitter();
     public onMove:EventEmitter<any> = new EventEmitter();
+    public onEndMove:EventEmitter<void> = new EventEmitter();
 
     constructor(workareaElement:HTMLElement) {
         this._workareaElement = workareaElement;
@@ -35,8 +33,8 @@ export class MoveBehaviour implements IBehaviour {
     /*------------------------------------------- METHODS --------------------------*/
     /*------------------------------------------- EVENTS ---------------------------*/
     private _onDragStart(e:MouseEvent):void {
+        if(e.button != 0) return; //needs to be a left click
         console.log("STARTING DRAG");
-        this._onDragging = true;
         //set drag to empty
         this._dragPosition = { x:0, y: 0 };
     
@@ -68,14 +66,13 @@ export class MoveBehaviour implements IBehaviour {
     
     private _onDragEnd(e:MouseEvent):void {
         console.log("DONE");
-        this._onDragging = false;
     
         //emit change
-        this.onMove.emit(this._dragPosition);
+        this._onDrag(e);
+        this.onEndMove.emit();
 
-        //
-        // this._workareaElement.blur();
-        // this._workareaElement.parentElement.blur();
+        this._workareaElement.blur();
+        this._workareaElement.parentElement.blur();
     
         this._workareaElement.parentElement.removeEventListener("mousemove", this._onMouseMoveEvent);
         this._workareaElement.parentElement.removeEventListener("mouseup", this._onMouseEndEvent);
@@ -97,6 +94,7 @@ export class MoveBehaviour implements IBehaviour {
         //stop the observers from listening
         this.onStartMove.observers.forEach(ob => (ob as any).unsubscribe());
         this.onMove.observers.forEach(ob => (ob as any).unsubscribe());
+        this.onEndMove.observers.forEach(ob => (ob as any).unsubscribe());
 
     }
     /*------------------------------------------- GETTERS & SETTERS ----------------*/

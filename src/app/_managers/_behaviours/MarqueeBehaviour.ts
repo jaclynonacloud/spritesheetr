@@ -44,6 +44,7 @@ public clear(deselect:boolean = true):void {
 }
 /*------------------------------------------- EVENTS ---------------------------*/
 private _onMarqueeStart(e:MouseEvent):void {
+    if(e.button != 0) return; //needs to be a left click
     console.log("STARTING DRAG");
     this._onDragging = true;
     this.clear();

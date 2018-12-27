@@ -1,12 +1,115 @@
-import { IBehaviour } from "./Behaviour";
+import { IBehaviour, getDistance } from "./Behaviour";
+import { EventEmitter } from "@angular/core";
 
 export class SelectBehaviour implements IBehaviour {
+    public static REQUIRED_DISTANCE:number = 15;
+    private _workareaElement:HTMLElement;
 
-    constructor() {
+    private _initPosition:{x:number, y:number};
+    private _dragPosition:{x:number, y:number};
+    private _workareaOffset:{x:number, y:number};
+
+    //events
+    private _onMouseStartEvent = (e:MouseEvent) => { this._onDragStart(e) };
+    private _onMouseMoveEvent = (e:MouseEvent) => { this._onDrag(e) };
+    private _onMouseEndEvent = (e:MouseEvent) => { this._onDragEnd(e) };
+
+    //emitters
+    public onStartMove:EventEmitter<void> = new EventEmitter();
+    public onMove:EventEmitter<any> = new EventEmitter();
+    public onEndMove:EventEmitter<void> = new EventEmitter();
+
+
+    constructor(workareaElement:HTMLElement) {
+        this._workareaElement = workareaElement;
+
+        this._workareaOffset = {
+            x: this._workareaElement.offsetLeft,
+            y: this._workareaElement.offsetTop
+        };
+
+        this._dragPosition = { x:0, y: 0 };
     }
 
+    /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
+    /*------------------------------------------- METHODS --------------------------*/
+    /*------------------------------------------- EVENTS ---------------------------*/
+    private _onDragStart(e:MouseEvent):void {
+        if(e.button != 0) return; //needs to be a left click
+        console.log("STARTING DRAG");
+        //set drag to empty
+        this._dragPosition = { x:0, y: 0 };
+    
+        //get offset
+        this._dragPosition.x = e.clientX - this._workareaOffset.x;
+        this._dragPosition.y = e.clientY - this._workareaOffset.y;
+
+        this._initPosition = {x:this._dragPosition.x, y:this._dragPosition.y};
+        //call move start
+        this.onStartMove.emit();
+    
+    
+        //listen to drag and exit events
+        this._workareaElement.parentElement.addEventListener("mousemove", this._onMouseMoveEvent);
+        this._workareaElement.parentElement.addEventListener("mouseup", this._onMouseEndEvent);
+        this._workareaElement.parentElement.addEventListener("mouseleave", this._onMouseEndEvent);
+    }
+    
+    private _onDrag(e:MouseEvent):void {
+        const localPosition = {
+            x: (e.clientX - this._workareaOffset.x),
+            y: (e.clientY - this._workareaOffset.y)
+        };
+
+        //get size of drag
+        this._dragPosition.x = localPosition.x - this._initPosition.x;
+        this._dragPosition.y = localPosition.y - this._initPosition.y;
+
+        
+
+        // console.log(this._dragPosition);
+
+        //emit a move IF our initial position is x away from our current position
+        const dist = Math.abs(getDistance(this._initPosition.x, this._initPosition.y, localPosition.x, localPosition.y));
+        // console.warn(dist);
+        if(dist < SelectBehaviour.REQUIRED_DISTANCE) return;
+    
+        //emit change
+        this.onMove.emit(this._dragPosition);
+    }
+    
+    private _onDragEnd(e:MouseEvent):void {
+        console.log("DONE");
+    
+        //emit change
+        this._onDrag(e);
+        this.onEndMove.emit();
+
+        this._workareaElement.blur();
+        this._workareaElement.parentElement.blur();
+    
+        this._workareaElement.parentElement.removeEventListener("mousemove", this._onMouseMoveEvent);
+        this._workareaElement.parentElement.removeEventListener("mouseup", this._onMouseEndEvent);
+        this._workareaElement.parentElement.removeEventListener("mouseleave", this._onMouseEndEvent);
+    }
+    /*------------------------------------------- OVERRIDES ------------------------*/
     public start():void {
+        //listen to click down
+        this._workareaElement.addEventListener("mousedown", this._onMouseStartEvent);
     }
-    public finish():void {    
+    public finish():void {
+
+        //cease listening
+        this._workareaElement.removeEventListener("mousedown", this._onMouseStartEvent);
+        this._workareaElement.parentElement.removeEventListener("mousemove", this._onMouseMoveEvent);
+        this._workareaElement.parentElement.removeEventListener("mouseup", this._onMouseEndEvent);
+        this._workareaElement.parentElement.removeEventListener("mouseleave", this._onMouseEndEvent);
+
+        //stop the observers from listening
+        this.onStartMove.observers.forEach(ob => (ob as any).unsubscribe());
+        this.onMove.observers.forEach(ob => (ob as any).unsubscribe());
+        this.onEndMove.observers.forEach(ob => (ob as any).unsubscribe());
+
     }
+    /*------------------------------------------- GETTERS & SETTERS ----------------*/
 }

@@ -1,7 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { SpriteComponent } from '../_components/sprite/sprite.component';
 import { WorkareaComponent } from '../_components/workarea/workarea.component';
-import { ISprite } from '../_managers/LoadManager';
 import { ToolsService } from './tools.service';
 import { MenusService } from './menus.service';
 import { AppService } from './app.service';
@@ -11,6 +10,7 @@ import { IBehaviour } from '../_managers/_behaviours/Behaviour';
 import { MarqueeBehaviour } from '../_managers/_behaviours/MarqueeBehaviour';
 import { MoveBehaviour } from '../_managers/_behaviours/MoveBehaviour';
 import { SelectBehaviour } from '../_managers/_behaviours/SelectBehaviour';
+import { ISprite, IWorkspace } from '../_managers/LoadManager';
 
 
 /**
@@ -22,16 +22,22 @@ export class WorkspaceService {
   private _title:string;
 
   private _quality:string;
-  private _scale:number;
+  private _scale:number;  
 
   private _workareaComponent:WorkareaComponent; //controls workarea specific, such as sizing
   private _spriteComponents:SpriteComponent[];
   private _selectedSpriteComponents:SpriteComponent[];
+  private _edgeSprites:{left:SpriteComponent, right:SpriteComponent, top:SpriteComponent, bottom:SpriteComponent};
+  private _selectedTopLeft:SpriteComponent;
   private _spriteData:ISprite[];
   private _spriteLoadIndex:number;
 
-  private _marqueeThreshold:number = 0.5;
-  private _moveIncrement:number = 1;
+  //property attributes
+  public marqueeThreshold:number = 0.5;
+  public moveIncrement:number = 1;
+  public snapToSprites:boolean;
+  public snapThreshold:number = 10;
+
 
   //behaviours
   private _currentBehaviour:IBehaviour;
@@ -41,6 +47,8 @@ export class WorkspaceService {
 
   public onRequestContext:EventEmitter<string> = new EventEmitter();
   public onSetContext:EventEmitter<string> = new EventEmitter();
+
+  public onLoaded:EventEmitter<void> = new EventEmitter();
 
   constructor() { }
 
@@ -54,6 +62,21 @@ export class WorkspaceService {
     this._spriteComponents = new Array();
     this._selectedSpriteComponents = new Array();
     this._spriteLoadIndex = 0;
+
+    this._edgeSprites = {left:null, right:null, top:null, bottom:null};
+  }
+
+  public loadWorkspace(workspace:IWorkspace):void {
+    if(workspace == null) return;
+
+    this._title = workspace.title;
+    this._workareaComponent.Width = workspace.width;
+    this._workareaComponent.Height = workspace.height;
+    this._workareaComponent.Transparent = workspace.transparent || false;
+    this._workareaComponent.Colour = workspace.bgColour || "#ffffff";
+
+    this._spriteLoadIndex = 0;
+    this._spriteData = workspace.sprites;
   }
 
   // WORKAREA
@@ -64,9 +87,11 @@ export class WorkspaceService {
     //setup AFTER workarea is assigned
     //give behaviours their dependants
     this._currentBehaviour = null;
-    this._selectBehaviour = new SelectBehaviour();
+    this._selectBehaviour = new SelectBehaviour(this._workareaComponent.Element);
     this._marqueeBehaviour = new MarqueeBehaviour(this._workareaComponent.Element, this._workareaComponent.MarqueeElement);
     this._moveBehaviour = new MoveBehaviour(this._workareaComponent.Element);
+
+    this.onLoaded.emit();
   }
 
   public setTitle(title:string):void {
@@ -135,6 +160,8 @@ export class WorkspaceService {
     console.log("SELECT");
 
     spriteComponent.select();
+
+    this._calculateEdgeSprites();
   }
 
   /**
@@ -188,6 +215,11 @@ export class WorkspaceService {
   }
 
 
+  public lockSpriteMovement():void {
+
+  }
+
+
 
   /*-------- BEHAVIOURS --------*/
   public changeBehaviour(behaviour:IBehaviour):void {
@@ -215,12 +247,20 @@ export class WorkspaceService {
 
     //handle how behaviours will react to tools
     switch(ToolsService.CurrentTool) {
-      case ToolsService.TOOL.Select:
+      case ToolsService.TOOL.Select: {
+        const alreadySelected:boolean = this._selectedSpriteComponents.includes(spriteComponent);
+        //if this sprite is already selected, don't do anything
+        // if(alreadySelected) return;
+
         //check key modifiers
-        // this.deselectAllSprites();
         console.log("IS SHIFT?: " + InputManager.IsShiftPressed);
-        if(InputManager.IsShiftPressed) { this.selectSprite(spriteComponent); }
+        if(InputManager.IsShiftPressed) { 
+          if(alreadySelected) this.deselectSprite(spriteComponent);
+          else this.selectSprite(spriteComponent); 
+        }
         else this.selectSingleSprite(spriteComponent);
+        break;
+      }
 
     }
 
@@ -244,30 +284,78 @@ export class WorkspaceService {
     const tools = ToolsService.TOOL;
 
     switch(tool) {
+      //SELECT
       case tools.Select:
         this.changeBehaviour(this._selectBehaviour);
         this.enableAllSprites();
+        //listen to events
+        this._selectBehaviour.onStartMove.subscribe(() => this._onMoveStart());
+        this._selectBehaviour.onMove.subscribe((pos) => this._onMove(pos));
+        this._selectBehaviour.onEndMove.subscribe(() => this._onMoveEnd());
         break;
+      //MARQUEE
       case tools.Marquee:
       this.changeBehaviour(this._marqueeBehaviour);
-        this.disableAllSprites();
+        this.disableAllSprites();        
         //listen to events
         this._marqueeBehaviour.onMarqueeChange.subscribe(rect => this._onMarqueeChange(rect));
         break;
+      //MOVE
       case tools.Move:
         this.changeBehaviour(this._moveBehaviour);
         this.disableAllSprites();
+        //get top left sprite for positional information
+        this._calculateEdgeSprites();
         //listen to events
         this._moveBehaviour.onStartMove.subscribe(() => this._onMoveStart());
         this._moveBehaviour.onMove.subscribe((pos) => this._onMove(pos));
+        this._moveBehaviour.onEndMove.subscribe(() => this._onMoveEnd());
         break;
       case tools.Scale:
+        //get top left sprite for positional information
+        this._calculateEdgeSprites();
+        break;
       case tools.Pan:
       case tools.Zoom:
       case tools.Delete:
         this.disableAllSprites();
         break;
     }
+  }
+
+
+  private _calculateEdgeSprites():void {
+    console.warn("SPRITES SELECTED");
+    console.log(this._selectedSpriteComponents);
+    if(this._selectedSpriteComponents.length <= 0) return;
+    if(this._selectedSpriteComponents.length == 1) {
+      this._selectedTopLeft = this._selectedSpriteComponents[0];
+      return;
+    }
+
+    this._selectedSpriteComponents.forEach((spr:SpriteComponent, i:number) => {
+      if(i == 0) this._edgeSprites = {left:spr, right:spr, top:spr, bottom:spr};
+      else {
+        //left/right
+        if(spr.X < this._edgeSprites.left.X) this._edgeSprites.left = spr;
+        if((spr.X + spr.Rect.width) >= (this._edgeSprites.right.X + this._edgeSprites.right.Width)) this._edgeSprites.right = spr;
+        //top/bottom
+        if(spr.Y < this._edgeSprites.top.Y) this._edgeSprites.top = spr;
+        if((spr.Y + spr.Rect.height) >= (this._edgeSprites.bottom.Y + this._edgeSprites.bottom.Height)) this._edgeSprites.bottom = spr;
+      }
+    });
+
+    console.warn("EDGES");
+    console.log(this._edgeSprites);
+
+
+    this._selectedTopLeft = this._selectedSpriteComponents.sort((a, b) => {
+      const left:boolean = a.X <= b.X;
+      const top:boolean = a.Y <= b.Y;
+      return (left && top) ? -1 : (left || top) ? -1 : 1;
+    })[0];
+
+    console.log(this._selectedTopLeft.Element);
   }
 
 
@@ -279,7 +367,7 @@ export class WorkspaceService {
     // //test whether the given sprite is within the bounds
     this._spriteComponents.forEach((spr:SpriteComponent) => {
         // spr.writeRect();
-        if(spr.isWithinBounds(x, y, width, height, this._marqueeThreshold)) {
+        if(spr.isWithinBounds(x, y, width, height, this.marqueeThreshold)) {
             this.selectSprite(spr);
         }
         else { 
@@ -290,18 +378,49 @@ export class WorkspaceService {
 
 
   }
-
-  // MOVE
+  
+  //MOVE
   private _onMoveStart():void {
     console.log("MOVING");
-    this._selectedSpriteComponents.forEach(spr => spr.setLastPosition());
+
+    // if(this._selectedTopLeft == null) this._calculateEdgeSprites();
+
+    console.log(this._selectedSpriteComponents);
+
+    console.log(this._selectedTopLeft);
+    
+    this._selectedSpriteComponents.forEach(spr => {
+      console.log("EL");
+      console.log(spr.Element);
+      console.log(this._selectedTopLeft.Element);
+      if(spr == this._selectedTopLeft) spr.setLastPosition();
+      else if(this._selectedTopLeft != null) spr.setLastPositionOffset(-this._selectedTopLeft.X, -this._selectedTopLeft.Y);
+    });
   }
   private _onMove(pos:{x:number, y:number}):void {
-    const { x, y } = pos;
-    // console.log("X: " + x + ", Y: " + y);
+    let { x, y } = pos;
+    //set move to closest increment
+    x = (this.moveIncrement >= 2) ? Math.ceil(x / this.moveIncrement) * this.moveIncrement : x;
+    y = (this.moveIncrement >= 2) ? Math.ceil(y / this.moveIncrement) * this.moveIncrement : y;
+
     this._selectedSpriteComponents.forEach((spr:SpriteComponent) => {
-      spr.setTempPositionOffset(x, y);
+      if(spr == this._selectedTopLeft) spr.setMoveOffset(x, y);
+      else if(this._selectedTopLeft != null) spr.setMoveOffset(this._selectedTopLeft.X, this._selectedTopLeft.Y);
     });
+    
+  }
+  private _onMoveEnd():void {
+    
+  }
+
+
+
+  //property events
+  public onSelectAll():void {
+    this._spriteComponents.forEach(spr => this.selectSprite(spr));
+  }
+  public onDeselectAll():void {
+    this._spriteComponents.forEach(spr => this.deselectSprite(spr));
   }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
@@ -309,14 +428,11 @@ export class WorkspaceService {
   public get Title():string { return this._title; }
   public get Quality():string { return this._quality; }
   public get Scale():number { return this._scale; }
-
-  public set MoveIncrement(value:number) { this._moveIncrement = value; }
-  public get MoveIncrement():number { return this._moveIncrement; }
-
+  
   public set SpriteData(spriteData:ISprite[]) { this._spriteData = spriteData; }
   public get SpriteData():ISprite[] { return this._spriteData; }
-
+  
   public get SelectedSpriteComponents():SpriteComponent[] { return this._selectedSpriteComponents; }
-  public get SelectedSpriteComponent():SpriteComponent { return this._selectedSpriteComponents.length == 1 ? this._selectedSpriteComponents[0] : null; }
-
+  public get SelectedSpriteComponent():SpriteComponent { return this._selectedSpriteComponents.length == 1 ? this._selectedSpriteComponents[0] : null; }  
+  public get SelectedRect():{x:number,y:number,width:number,height:number} { return {x:this._edgeSprites.left.X, y:this._edgeSprites.top.Y, width:this._edgeSprites.right.X + this._edgeSprites.right.Width, height:this._edgeSprites.bottom.Y + this._edgeSprites.bottom.Height}; }
 }

@@ -82,6 +82,14 @@ export class AppService {
     InputManager.registerKeys("paste", AppService.SHORTCUTS.Paste, this.paste.bind(this));
 
     InputManager.AllowKeyboard = true;
+
+
+
+    //listen for services to load
+    this._workspaceService.onLoaded.subscribe(() => {
+      //set default tool
+      this._toolsService.setTool(ToolsService.TOOL.Select);
+    });
   }
 
 
@@ -183,12 +191,14 @@ export class AppService {
 
   private _onLoadedWorkspace(workspace:IWorkspace):void {
 
-    this._workspaceService.SpriteData = workspace.sprites;
+    this._workspaceService.loadWorkspace(workspace);
 
-    console.log("MAKE IT WORK!");
-    this._workspaceService.setTitle(workspace.name);
-    //add the sprites to the sprite manager
-    this._workspaceService.resizeWorkarea(workspace.workWidth, workspace.workHeight);
+    // this._workspaceService.SpriteData = workspace.sprites;
+
+    // console.log("MAKE IT WORK!");
+    // this._workspaceService.setTitle(workspace.name);
+    // //add the sprites to the sprite manager
+    // this._workspaceService.resizeWorkarea(workspace.workWidth, workspace.workHeight);
   }
 
   /*------------------------------------------- OVERRIDES ------------------------*/

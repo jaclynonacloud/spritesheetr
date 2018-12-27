@@ -1,3 +1,4 @@
 <div class="sprite" #element>
   <img class="sprite__image" [src]="(_data) ? _data.src : ''" [alt]="(_data) ? _data.name : ''" (mousedown)="_onClicked()" #image>
+  <div class="sprite__outline"></div>
 </div>

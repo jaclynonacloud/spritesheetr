@@ -18,6 +18,8 @@ export class WorkareaComponent implements OnInit {
   private _colour:string;
   private _transparent:boolean;
 
+  private _mousePosition:{x:number, y:number};
+
   public onScale:EventEmitter<number> = new EventEmitter();
 
   constructor(private _workspaceService:WorkspaceService) { }
@@ -28,6 +30,8 @@ export class WorkareaComponent implements OnInit {
     //setup initials
     this.Scale = 1;
     this.Colour = "#8C7770";
+
+    this.Element.addEventListener("mousemove", (e:MouseEvent) => {this._mousePosition = {x:e.clientX - this.Element.offsetLeft, y:e.clientY - this.Element.offsetTop};});
   }
   /*------------------------------------------- METHODS --------------------------*/
   /*------------------------------------------- EVENTS ---------------------------*/
@@ -72,5 +76,8 @@ export class WorkareaComponent implements OnInit {
 
     this.element.nativeElement.style.transform = `scale(${this._scale})`;
   }
+
+
+  public get MousePosition() { return this._mousePosition; }
 
 }

@@ -24,7 +24,7 @@ export class SpriteComponent implements OnInit {
 
   //used for movement
   private _lastPosition:{x:number, y:number};
-  private _tempPosition:{x:number, y:number};
+  private _moveOffset:{x:number, y:number};
   
 
   //flags
@@ -40,10 +40,12 @@ export class SpriteComponent implements OnInit {
     console.log("IMAGE");
     console.log(this._image);
     this._lastPosition = {x:0, y:0};
-    this._tempPosition = {x:0, y:0};
+    this._moveOffset = {x:0, y:0};
 
     //add to sprite manager
     this._workspaceService.addSprite(this);
+
+    this._image.nativeElement.draggable = false;
 
     //set natural width/height
     this._image.nativeElement.addEventListener("load", (e) => {
@@ -75,7 +77,7 @@ export class SpriteComponent implements OnInit {
     else {
       this.Element.classList.remove("selectable");
       //if they were selected, remove that too
-      this.deselect();
+      // this.deselect();
     }
   }
 
@@ -145,12 +147,20 @@ export class SpriteComponent implements OnInit {
     this._lastPosition.x = this.X;
     this._lastPosition.y = this.Y;
   }
-  public setTempPositionOffset(x:number, y:number):void {
-    this._tempPosition.x = x;
-    this._tempPosition.y = y;
-    //move stuff
-    this.X = this._tempPosition.x + this._lastPosition.x;
-    this.Y = this._tempPosition.y + this._lastPosition.y;
+  public setLastPositionX(x:number):void {
+    this._lastPosition.x = x
+  }
+  public setLastPostiionY(y:number):void {
+    this._lastPosition.y = y;
+  }
+  public setLastPositionOffset(xOffset:number, yOffset:number):void {
+    this._lastPosition.x = this.X + xOffset;
+    this._lastPosition.y = this.Y + yOffset;
+  }
+
+  public setMoveOffset(x:number, y:number):void {
+    this.X = this._lastPosition.x + x;
+    this.Y = this._lastPosition.y + y;
   }
 
   //tests
@@ -208,27 +218,30 @@ export class SpriteComponent implements OnInit {
 
   public get X():number { return this._data.x; }
   public set X(value:number) {
-    this._data.x = value;
+    this._data.x = Math.max(0, value); //don't let go less than 0
     //set in template
-    (this._element.nativeElement.parentElement as HTMLElement).style.left = `${value}px`;
+    (this._element.nativeElement.parentElement as HTMLElement).style.left = `${this._data.x}px`;
   }
   public get Y():number { return this._data.y; }
   public set Y(value:number) {
-    this._data.y = value;
+    this._data.y = Math.max(0, value); //don't let go less than 0
     //set in template
-    (this._element.nativeElement.parentElement as HTMLElement).style.top = `${value}px`;
+    (this._element.nativeElement.parentElement as HTMLElement).style.top = `${this._data.y}px`;
   }
   public get Width():number { return this._data.width; }
   public set Width(value:number) {
     this._data.width = value;
     //set in template
-    (this._element.nativeElement.parentElement as HTMLElement).style.width = `${value}px`;
+    (this._element.nativeElement.parentElement as HTMLElement).style.width = `${this._data.width}px`;
   }
   public get Height():number { return this._data.height; }
   public set Height(value:number) {
     this._data.height = value;
     //set in template
-    (this._element.nativeElement.parentElement as HTMLElement).style.height = `${value}px`;
+    (this._element.nativeElement.parentElement as HTMLElement).style.height = `${this._data.height}px`;
   }
+
+
+  public get LastPosition() { return this._lastPosition; }
 
 }

@@ -44,9 +44,11 @@ export class LoadManager {
 
 // Spritesheetr specific data
 export interface IWorkspace {
-    name:string;
-    workWidth:number;
-    workHeight:number;
+    title:string;
+    width:number;
+    height:number;
+    transparent?:boolean;
+    bgColour?:string;
     sprites:ISprite[];
 }
 

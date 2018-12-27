@@ -12,10 +12,10 @@
     <div class="group select" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Select">
         <div class="title">Select Options</div>
         <div class="row center first">
-          <button>Select All</button>
+          <button (click)="_workspaceService.onSelectAll()">Select All</button>
         </div>
         <div class="row center">
-          <button >Deselect All</button>
+          <button (click)="_workspaceService.onDeselectAll()">Deselect All</button>
         </div>
         <div class="row center">
           <button>-</button>
@@ -30,13 +30,26 @@
       <!-- /Select Menu -->
   
       <!-- Move Menu -->
-      <div class="group move" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Move">
+      <div class="group move" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Move || CurrentTool == TOOL.Select">
         <div class="title">Move Options</div>
         <div class="row center text-center bottom first">Selected Sprites: {{ SelectedSpritesCount }}</div>
         <div class="row text-center small" *ngIf="SelectedSpritesCount == 0">Select some sprites with the selection or marquee tool!</div>
         <div class="row">
           <label for="moveIncrement">Increment</label>
-          <input id="moveIncrement" type="number" [(ngModel)]="_workspaceService.MoveIncrement" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)" min="1" max="5000">
+          <input id="moveIncrement" type="number" [(ngModel)]="_workspaceService.moveIncrement" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)" min="1" max="5000">
+        </div>
+        <div class="row">
+          <span class="label">Snap to Sprites</span>
+          <label class="custom-checkbox">
+          <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="_workspaceService.snapToSprite">
+          <span class="custom-checkbox__element"></span>
+          </label>
+        </div>
+        <div class="row-container" [ngClass]="{'empty' : !_workspaceService.snapToSprite}">
+          <div class="row" *ngIf="_workspaceService.snapToSprite">
+            <label for="snapThreshold">Snap Threshold</label>
+            <input id="snapThreshold" type="number" [(ngModel)]="_workspaceService.snapThreshold" (focus)="disableShortcuts(true)" (blur)="disableShortcuts(false)" (keyup)="_onKeyUp($event)" min="1" max="5000">
+          </div>
         </div>
         <div class="row center">
           <button (click)="_onScaleChanged(0.5)">Zoom Out</button>

@@ -16,8 +16,6 @@ export class ToolsService {
   /*------------------------------------------- METHODS --------------------------*/
   public addToolbar(toolbar:MenuToolbarComponent):void {
     this._toolbar = toolbar;
-
-    this.setTool(ToolsService.TOOL.Select);
   }
 
   public load():void {
