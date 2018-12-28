@@ -32,6 +32,9 @@ export class WorkspaceService {
   private _spriteData:ISprite[];
   private _spriteLoadIndex:number;
 
+  private _lastMouseX:number;
+  private _lastMouseY:number;
+
   //property attributes
   public marqueeThreshold:number = 0.5;
   public moveIncrement:number = 1;
@@ -62,6 +65,8 @@ export class WorkspaceService {
     this._spriteComponents = new Array();
     this._selectedSpriteComponents = new Array();
     this._spriteLoadIndex = 0;
+    this._lastMouseX = 0;
+    this._lastMouseY = 0;
 
     this._edgeSprites = {left:null, right:null, top:null, bottom:null};
   }
@@ -325,11 +330,11 @@ export class WorkspaceService {
 
 
   private _calculateEdgeSprites():void {
-    console.warn("SPRITES SELECTED");
-    console.log(this._selectedSpriteComponents);
     if(this._selectedSpriteComponents.length <= 0) return;
     if(this._selectedSpriteComponents.length == 1) {
-      this._selectedTopLeft = this._selectedSpriteComponents[0];
+      let spr = this._selectedSpriteComponents[0];
+      this._edgeSprites = {left:spr, right:spr, top:spr, bottom:spr};
+      // this._selectedTopLeft = this._selectedSpriteComponents[0];
       return;
     }
 
@@ -384,33 +389,91 @@ export class WorkspaceService {
     console.log("MOVING");
 
     // if(this._selectedTopLeft == null) this._calculateEdgeSprites();
+    // if(this._edgeSprites.left == null) this._calculateEdgeSprites();
 
-    console.log(this._selectedSpriteComponents);
+    // console.log(this._selectedSpriteComponents);
 
-    console.log(this._selectedTopLeft);
+    // console.log(this._selectedTopLeft);
+
+    this._lastMouseX = this._workareaComponent.MousePosition.x;
+    this._lastMouseY = this._workareaComponent.MousePosition.y;
     
     this._selectedSpriteComponents.forEach(spr => {
-      console.log("EL");
-      console.log(spr.Element);
-      console.log(this._selectedTopLeft.Element);
-      if(spr == this._selectedTopLeft) spr.setLastPosition();
-      else if(this._selectedTopLeft != null) spr.setLastPositionOffset(-this._selectedTopLeft.X, -this._selectedTopLeft.Y);
+      spr.freezePosition();
+      // spr.setLastPositionOffset(-this.SelectedRect.x, -this.SelectedRect.y);
+      // if(spr == this._selectedTopLeft) spr.setLastPosition();
+      // else if(this._selectedTopLeft != null) spr.setLastPositionOffset(-this._selectedTopLeft.X, -this._selectedTopLeft.Y);
     });
   }
   private _onMove(pos:{x:number, y:number}):void {
     let { x, y } = pos;
-    //set move to closest increment
+
+    //set move to closest increment || INCREMENTS
     x = (this.moveIncrement >= 2) ? Math.ceil(x / this.moveIncrement) * this.moveIncrement : x;
     y = (this.moveIncrement >= 2) ? Math.ceil(y / this.moveIncrement) * this.moveIncrement : y;
 
-    this._selectedSpriteComponents.forEach((spr:SpriteComponent) => {
-      if(spr == this._selectedTopLeft) spr.setMoveOffset(x, y);
-      else if(this._selectedTopLeft != null) spr.setMoveOffset(this._selectedTopLeft.X, this._selectedTopLeft.Y);
-    });
-    
+    console.log("CALLED");
+    this._keepInWorkareaBounds(x, y, true);
+    this._tryToSnapSelection(this._workareaComponent.MousePosition.x - this._lastMouseX, this._workareaComponent.MousePosition.y - this._lastMouseY);
+
+    this._lastMouseX = this._workareaComponent.MousePosition.x;
+    this._lastMouseY = this._workareaComponent.MousePosition.y;    
   }
   private _onMoveEnd():void {
     
+  }
+
+  private _keepInWorkareaBounds(desiredX:number, desiredY:number, useAllSides:boolean = false):void {
+
+
+    this._selectedSpriteComponents.forEach((spr:SpriteComponent) => {
+
+      const visibleX = this._edgeSprites.left.computeX(desiredX);
+      const visibleRight = this._edgeSprites.right.computeX(desiredX, 1000);
+      spr.moveX(visibleX);
+      const visibleY = this._edgeSprites.top.computeY(desiredY);
+      const visibleBottom = this._edgeSprites.bottom.computeY(desiredY, 700);
+      spr.moveY(visibleY);
+
+      // console.log({
+      //   x: visibleX,
+      //   y:visibleY,
+      //   right:visibleRight,
+      //   bottom:visibleBottom
+      // });
+    });
+
+
+  }
+
+  private _tryToSnapSelection(xVel:number, yVel:number):void {
+    // if(!this.snapToSprites) return;
+    
+    //get sprites that are NOT selected to snap to
+    const staticSprites:SpriteComponent[] = this._spriteComponents.filter(spr => !this._selectedSpriteComponents.includes(spr));
+    if(staticSprites.length <= 0) return;
+
+    //get the snap direction
+    if(xVel < 0) {
+      //try to snap left side to right edge of other components
+      const left = this._edgeSprites.left.X;
+      const rightEdges:number[] = staticSprites.map(spr => spr.X + spr.Width);
+      let closestEdgeIndex:number = this._getClosestElementIndex(left, rightEdges);
+      if(Math.abs(rightEdges[closestEdgeIndex] - left) < this.snapThreshold)
+        this._edgeSprites.left.X = rightEdges[closestEdgeIndex];
+      const leftEdges:number[] = staticSprites.map(spr => spr.X);
+      closestEdgeIndex = this._getClosestElementIndex(left, leftEdges);
+      if(Math.abs(leftEdges[closestEdgeIndex] - left) < this.snapThreshold)
+        this._edgeSprites.left.X = leftEdges[closestEdgeIndex];
+    }
+
+  }
+  private _getClosestElementIndex(value:number, arr:number[]):number {
+    let res = 0;
+    arr.forEach((a, i) => {
+      if(Math.abs(value - a) < Math.abs(value - arr[res])) res = i;
+    });
+    return res;
   }
 
 

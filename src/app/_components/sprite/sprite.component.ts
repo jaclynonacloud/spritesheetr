@@ -147,12 +147,12 @@ export class SpriteComponent implements OnInit {
     this._lastPosition.x = this.X;
     this._lastPosition.y = this.Y;
   }
-  public setLastPositionX(x:number):void {
-    this._lastPosition.x = x
-  }
-  public setLastPostiionY(y:number):void {
-    this._lastPosition.y = y;
-  }
+  // public setLastPositionX():void {
+  //   this._lastPosition.x = this.X;
+  // }
+  // public setLastPostiionY():void {
+  //   this._lastPosition.y = this.Y;
+  // }
   public setLastPositionOffset(xOffset:number, yOffset:number):void {
     this._lastPosition.x = this.X + xOffset;
     this._lastPosition.y = this.Y + yOffset;
@@ -162,6 +162,61 @@ export class SpriteComponent implements OnInit {
     this.X = this._lastPosition.x + x;
     this.Y = this._lastPosition.y + y;
   }
+
+
+  private _freezePosition:{x:number, y:number};
+  public freezePosition():void {
+    this._freezePosition = {x:this.X, y:this.Y};
+  }
+  public computeX(value:number, allowed?:number):number {
+    let diff:number = this._freezePosition.x + value;
+    // console.log("X: " + value + ", FREEZE: " + this._freezePosition.x + ", DIFF: " + diff);
+
+    //handle boundaries
+    if(diff <= 0) diff = -this._freezePosition.x;
+    else if(allowed) {
+      if((diff + this.Width) > allowed) diff = allowed - this.Width - this._freezePosition.x;
+    }
+    else diff -= this._freezePosition.x;
+    
+
+    return diff;
+  }
+  public moveX(value:number):void {
+    this.X = this._freezePosition.x + value;
+  }
+  public computeY(value, allowed?:number):number {
+    let diff:number = this._freezePosition.y + value;
+
+    //handle boundaries
+    if(diff <= 0) diff = -this._freezePosition.y;
+    else if(allowed) {
+      if((diff + this.Height) > allowed) diff = allowed - this.Height - this._freezePosition.y;
+    }
+    else diff -= this._freezePosition.y;
+    
+
+    return diff;
+  }
+  public moveY(value:number):void {
+    this.Y = this._freezePosition.y + value;
+  }
+
+  public computeRight(value:number, allowed:number):number {
+    let diff:number = this._freezePosition.x + this.Width + value;
+
+    console.log("DIFF RIGHT: " + diff);
+
+    //handle boundaries
+    if(diff > allowed) diff = allowed - this.Width - this._freezePosition.x;
+    else diff -= this._freezePosition.x + this.Width;
+    
+
+    return diff;
+  }
+  // public computeBottom(value:number):number {
+
+  // }
 
   //tests
   public isWithinBounds(x:number, y:number, width:number, height:number, threshold:number = 0):boolean {
