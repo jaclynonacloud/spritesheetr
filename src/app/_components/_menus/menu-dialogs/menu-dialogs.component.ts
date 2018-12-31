@@ -16,7 +16,7 @@ export class MenuDialogsComponent implements OnInit {
 
   //get attributes from dialogs
   //--pack sprites
-  public packSprites_packingType:string = "default";
+  public packSprites_packingType:string = "left";
   public packSprites_allowResize:boolean = true;
   public packSprites_fitToSprites:boolean = true;
   //--workspace props

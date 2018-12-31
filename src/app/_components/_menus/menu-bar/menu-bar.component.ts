@@ -60,7 +60,8 @@ export class MenuBarComponent implements OnInit {
 
     //workspace
     this._workspaceOptions = [
-      { title:"Properties...", callback:() => this._appService.MenusService.MenuDialogs.openDialog(MenuDialogsComponent.DIALOG.WorkspaceProps) }
+      { title:"Properties...", callback:() => this._appService.MenusService.MenuDialogs.openDialog(MenuDialogsComponent.DIALOG.WorkspaceProps) },
+      { title:"Autosize", callback:() => this._appService.WorkspaceService.autosizeWorkarea() }
     ];
     this._workspaceOptionsProps = this._getOptionProps(this._workspaceOptions);
 

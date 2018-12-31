@@ -162,7 +162,7 @@ export class WorkspaceService {
     });
 
 
-    while(!this._packSprites(sprites)) {
+    while(!this._packSprites(sprites, algorithm)) {
 
       if(allowResize) {
         console.warn("I cannot pack! - Growing workspace to accomodate!");
@@ -191,7 +191,15 @@ export class WorkspaceService {
 
   }
 
-  private _packSprites(sprites:SpriteComponent[]):boolean {
+  /**https://stackoverflow.com/questions/35995943/javascript-sort-objects-by-position-left-top */
+  private _favourLeftSort(a:SpriteComponent, b:SpriteComponent) {
+    return a.X == b.X ? a.Y - b.Y : a.X - b.X;
+  }
+  private _favourTopSort(a:SpriteComponent, b:SpriteComponent) {
+    return a.Y == b.Y ? a.X - b.X : a.Y - b.Y;
+  }
+
+  private _packSprites(sprites:SpriteComponent[], algorithm:string):boolean {
 
     //iterate through sprites
     for(let i = 0; i < sprites.length; i++) {
@@ -207,7 +215,19 @@ export class WorkspaceService {
       let foundPlace:boolean = false;
 
       //iterate through past sprites
-      const lastSprites = sprites.filter((sp, ind) => ind < i).sort((a, b) => a.Y > b.Y ? 1 : -1);
+      // const lastSprites = sprites.filter((sp, ind) => ind < i).sort((a, b) => a.Y > b.Y ? 1 : -1);
+      //--prioritize top-left sprites first
+
+      let sortingAlgorithm = this._favourTopSort;
+      switch(algorithm) {
+        case "left":
+          sortingAlgorithm = this._favourLeftSort;
+          break;
+        case "top":
+          sortingAlgorithm = this._favourTopSort;
+      }
+      
+      const lastSprites = sprites.filter((sp, ind) => ind < i).sort(sortingAlgorithm);
       for(let n = 0; n < lastSprites.length; n++) {
 
         const compSpr = lastSprites[n];
