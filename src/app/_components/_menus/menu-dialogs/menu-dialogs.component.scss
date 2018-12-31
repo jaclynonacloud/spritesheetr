@@ -1,0 +1,97 @@
+@import '../../../../globals';
+
+$border-settings: solid 1px mix($background-dark-colour-2, grey, 50);
+
+.menu-dialog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    @include display-flex();
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    background: mix(white, transparent, 60);
+    z-index: 100;
+
+    .wrapper {
+        @include display-flex();
+        flex-flow: column;
+        align-items: center;
+        min-width: 300px;
+        width: 40vw;
+        min-height: 500px;
+        height: 80vh;
+        border-top: #{$border-settings};
+    }
+
+    &__header {
+        @include display-flex();
+        justify-content: space-between;
+        align-items: center;
+        background: $button-colour;
+        width: 100%;
+        flex-shrink: 0;
+        padding: 4px 8px;
+        box-sizing: border-box;
+        border-bottom: solid 1px grey;
+        border-left: #{$border-settings};
+        border-right: #{$border-settings};
+
+        &__title {
+            padding: 0;
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: normal;
+            @extend %Quicksand-Light;
+        }
+
+        &__x {
+            @include display-flex();
+            @extend %close-icon-dark;
+            background-size: 20px 20px;
+            background-position: 5px 5px;
+            background-repeat: no-repeat;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            font-size: 30px;
+            cursor: pointer;
+
+            @extend %round-outline;
+        }
+    }
+
+    &__content {
+        flex: 1;
+        display: grid;
+        grid-template-columns: minmax(120px, 1fr) 2fr;
+        grid-auto-rows: minmax(30px, max-content);
+        grid-row-gap: 5px;
+        background: white;
+        width: 100%;
+        max-height: max-content;
+        padding: 8px;
+        @extend %Quicksand-Light;
+        font-size: 1.1em;
+        box-sizing: border-box;
+        overflow: auto;
+        border: #{$border-settings};
+        border-top: none;
+
+        input {
+            padding: 4px;
+        }
+    }
+
+    .content {
+        &__submit {
+            justify-self: flex-end;
+            grid-column: span 2;
+            width: max-content;
+            
+        }
+    }
+}

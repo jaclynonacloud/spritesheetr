@@ -55,9 +55,7 @@ export class MenuPropertiesComponent implements OnInit {
     this._collapsed = !this._collapsed;
   }
 
-  public disableShortcuts(disable:boolean):void {
-    this._menusService.onDisableShortcuts.emit(disable);
-  }
+  
   /*------------------------------------------- EVENTS ---------------------------*/
   private _onMenuClicked():void {
     this._menusService.requestClear();
@@ -79,11 +77,6 @@ export class MenuPropertiesComponent implements OnInit {
 
   private _onScaleReset():void {
     this._menusService.onScaleReset.emit();
-  }
-
-  private _onKeyUp(e:KeyboardEvent):void {
-    //listen for enter key, and blur target
-    if(e.key == "Enter") (e.target as HTMLInputElement).blur();
   }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/

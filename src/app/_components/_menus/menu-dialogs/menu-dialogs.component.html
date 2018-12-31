@@ -1,0 +1,65 @@
+<!-- Pack Spritesheet -->
+<div class="menu-dialog" #packSprite>
+  <div class="wrapper">
+    <header class="menu-dialog__header">
+      <h2 class="menu-dialog__header__title">Pack Spritesheet</h2>
+      <div class="menu-dialog__header__x" title="Close Dialog." (click)="onCloseDialog()"></div>
+    </header>
+    <div class="menu-dialog__content">
+      <!-- Packing -->
+      <div class="content__label">Packing Type</div>
+      <select [(ngModel)]="packSprites_packingType">
+        <option value="default">Packing Algorithms (Not Implemented)</option>
+      </select>
+      <!-- Allow Resize -->
+      <div class="content__label">Allow Resize</div>
+      <label class="custom-checkbox" title="Allows workarea to resize to next ^2 if necessary.">
+        <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="packSprites_allowResize">
+        <span class="custom-checkbox__element"></span>
+      </label>
+      <!-- Fit to Sprites -->
+      <div class="content__label">Fit to Sprites</div>
+      <label class="custom-checkbox" title="Will autosize workarea to fit packed sprites.">
+        <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="packSprites_fitToSprites">
+        <span class="custom-checkbox__element"></span>
+      </label>
+      <!-- Submit -->
+      <button class="content__submit" (click)="onPackSprites()">Pack</button>
+    </div>
+  </div>
+</div>
+<!-- /Pack Spritesheet -->
+
+<!-- Pack Spritesheet -->
+<div class="menu-dialog" #workspaceProps>
+    <div class="wrapper">
+      <header class="menu-dialog__header">
+        <h2 class="menu-dialog__header__title">Workspace Properties</h2>
+        <div class="menu-dialog__header__x" title="Close Dialog." (click)="onCloseDialog()"></div>
+      </header>
+      <div class="menu-dialog__content">
+        <!-- Title -->
+        <div class="content__label">Title</div>
+        <input id="sprName" type="text" [(ngModel)]="workProp_title" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onKeyUp($event)" maxlength="80">
+        <!-- Width/Height -->
+        <div class="content__label">Workarea Size</div>
+        <div>
+          <input type="number" [(ngModel)]="workProp_width" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onNumberEvent($event, 5, 99999)" min="5" max="99999">
+          <span class="pad">&#215;</span>
+          <input type="number" [(ngModel)]="workProp_height" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onNumberEvent($event, 5, 99999)" min="5" max="99999">
+        </div>
+        <!-- Colour -->
+        <div class="content__label">Colour</div>
+        <input type="color" [(ngModel)]="workProp_colour">
+        <!-- Transparency -->
+        <div class="content__label">Transparent BG</div>
+        <label class="custom-checkbox">
+          <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="workProp_transparent">
+          <span class="custom-checkbox__element"></span>
+        </label>
+        <!-- Submit -->
+        <button class="content__submit" (click)="onChangeWorkspaceProperties()">OK</button>
+      </div>
+    </div>
+  </div>
+  <!-- /Pack Spritesheet -->

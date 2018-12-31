@@ -3,6 +3,7 @@ import { ToggleButtonComponent } from '../../_ui/toggle-button/toggle-button.com
 import { AppService } from '../../../_services/app.service';
 import { ISprite } from '../../../_managers/LoadManager';
 import { StatesService } from '../../../_services/states.service';
+import { MenuDialogsComponent } from '../menu-dialogs/menu-dialogs.component';
 
 @Component({
   selector: 'app-menu-bar',
@@ -22,6 +23,8 @@ export class MenuBarComponent implements OnInit {
   private _fileOptionsProps:{title:string, property:string, callback:any}[];
   private _editOptions:IOption[];
   private _editOptionsProps:{title:string, property:string, callback:any}[];
+  private _workspaceOptions:IOption[];
+  private _workspaceOptionsProps:{title:string, property:string, callback:any}[];
   
   private _sprOptions:IOption[];
   private _sprOptionsProps:{title:string, property:string, callback:any}[];
@@ -55,13 +58,19 @@ export class MenuBarComponent implements OnInit {
     ];
     this._editOptionsProps = this._getOptionProps(this._editOptions);
 
+    //workspace
+    this._workspaceOptions = [
+      { title:"Properties...", callback:() => this._appService.MenusService.MenuDialogs.openDialog(MenuDialogsComponent.DIALOG.WorkspaceProps) }
+    ];
+    this._workspaceOptionsProps = this._getOptionProps(this._workspaceOptions);
+
     //spritesheetr
     this._sprOptions = [
       { title:'Upload Image(s) | file--accept=image/*~multiple=true', callback:this._onLoadSprite.bind(this) },
       { title:'Select All', shortcut:AppService.GetShortcut(AppService.SHORTCUTS["Select All"]), callback:(e) => {console.log("CALLED BACK"); console.log(e)} },
       { title:'Deselect All', shortcut:AppService.GetShortcut(AppService.SHORTCUTS["Deselect All"]), callback:null },
       { title:'_separator', callback:null },
-      { title:'Pack Sprites', callback:null }
+      { title:'Pack Sprites', callback:() => this._appService.MenusService.MenuDialogs.openDialog(this.DIALOG.PackSprite) }
     ];
     this._sprOptionsProps = this._getOptionProps(this._sprOptions);
 
@@ -171,6 +180,8 @@ export class MenuBarComponent implements OnInit {
 
   public get CurrentState():string { return StatesService.CurrentState; }
   public get STATE() { return StatesService.STATE; }
+
+  public get DIALOG() { return MenuDialogsComponent.DIALOG; }
 
 }
 

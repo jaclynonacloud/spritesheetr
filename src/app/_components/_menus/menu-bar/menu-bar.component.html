@@ -3,7 +3,8 @@
   <div class="menu-bar__items">
     <app-toggle-list-property-group text="file" [itemProperties]="_fileOptionsProps" ></app-toggle-list-property-group>
     <app-toggle-list-property-group text="edit" [itemProperties]="_editOptionsProps"></app-toggle-list-property-group>
-    <app-toggle-list-group text="workspace" [items]="['Properties', 'Clear', 'Save', 'Load', '_separator', 'General', 'Animation']"></app-toggle-list-group>
+    <app-toggle-list-property-group text="workspace" [itemProperties]="_workspaceOptionsProps"></app-toggle-list-property-group>
+    <!-- <app-toggle-list-group text="workspace" [items]="['Properties', 'Clear', 'Save', 'Load', '_separator', 'General', 'Animation']"></app-toggle-list-group> -->
     <app-toggle-list-property-group text="spritesheetr" [itemProperties]="_sprOptionsProps" *ngIf="CurrentState == STATE.Spritesheetr"></app-toggle-list-property-group>
     <app-toggle-list-group text="animatr" [items]="['Play', 'Pause', 'Clear']" *ngIf="CurrentState == STATE.Animatr"></app-toggle-list-group>
     <app-toggle-list-group text="clippr" [items]="['Clear']" *ngIf="CurrentState == STATE.Clippr"></app-toggle-list-group>

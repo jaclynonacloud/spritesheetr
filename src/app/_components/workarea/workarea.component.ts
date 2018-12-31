@@ -10,6 +10,7 @@ export class WorkareaComponent implements OnInit {
 
   @ViewChild("workarea", {read:ElementRef}) element:ElementRef;
   @ViewChild("marquee", {read:ElementRef}) marqueeElement:ElementRef;
+  @ViewChild("selectionContainer", {read:ElementRef}) selectionContainer:ElementRef;
 
   private _width:number;
   private _height:number;
@@ -19,6 +20,7 @@ export class WorkareaComponent implements OnInit {
   private _transparent:boolean;
 
   private _mousePosition:{x:number, y:number};
+  private _selectionRect:{x:number, y:number, width:number, height:number};
 
   public onScale:EventEmitter<number> = new EventEmitter();
 
@@ -34,11 +36,20 @@ export class WorkareaComponent implements OnInit {
     this.Element.addEventListener("mousemove", (e:MouseEvent) => {this._mousePosition = {x:e.clientX - this.Element.offsetLeft, y:e.clientY - this.Element.offsetTop};});
   }
   /*------------------------------------------- METHODS --------------------------*/
+  public useSelectionContainer(x:number, y:number, width:number, height:number):void {
+    this._selectionRect = {x, y, width, height};
+
+    this.selectionContainer.nativeElement.style.left = `${x}px`;
+    this.selectionContainer.nativeElement.style.top = `${y}px`;
+    this.selectionContainer.nativeElement.style.width = `${width}px`;
+    this.selectionContainer.nativeElement.style.height = `${height}px`;
+  }
   /*------------------------------------------- EVENTS ---------------------------*/
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
   public get Element():HTMLElement { return this.element.nativeElement as HTMLElement; }
   public get MarqueeElement():HTMLElement { return this.marqueeElement.nativeElement as HTMLElement; }
+  public get SelectionContainer():HTMLElement { return this.selectionContainer.nativeElement as HTMLElement; }
   public get Width():number { return this._width; }
   public get RenderWidth():number { return this._width * this._scale; }
   public set Width(value:number) {

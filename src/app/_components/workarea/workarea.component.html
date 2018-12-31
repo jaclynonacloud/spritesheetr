@@ -1,5 +1,7 @@
 <div class="workarea" #workarea (mousedown)="_workspaceService.onClickWorkarea()">
 
+  <div class="selectionContainer" #selectionContainer></div>
+
   <app-sprite *ngFor="let spr of _workspaceService.SpriteData"></app-sprite>
 
   <div class="marquee" #marquee></div>

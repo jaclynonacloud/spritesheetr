@@ -37,6 +37,8 @@ export class SpriteComponent implements OnInit {
   ngOnInit() {
     this._quality = "";
 
+    this.clearOffset();
+
     console.log("IMAGE");
     console.log(this._image);
     this._lastPosition = {x:0, y:0};
@@ -45,6 +47,7 @@ export class SpriteComponent implements OnInit {
     //add to sprite manager
     this._workspaceService.addSprite(this);
 
+    this.Element.draggable = false;
     this._image.nativeElement.draggable = false;
 
     //set natural width/height
@@ -58,11 +61,19 @@ export class SpriteComponent implements OnInit {
 
     //set init quality
     this.setQuality(this._workspaceService.Quality);
+
+    // this.scaleGlobally(2);
   }
   /*------------------------------------------- METHODS --------------------------*/
   public load(data:ISprite):void {
     this._data = data;
+
+    //add some required defaults if none available
+    this.Scale = (this._data.scale) ? this._data.scale : 1;
+
+
     this._defaults = data;
+
 
     //listen to change BEFORE calling it
     // this._data.onChange.subscribe((prop:string) => this._onContextChange(prop));
@@ -120,13 +131,45 @@ export class SpriteComponent implements OnInit {
   }
 
   public resetSize():void {
-    this._data.width = (this._defaults) ? this._defaults.width : this._naturalWidth;
-    this._data.height = (this._defaults) ? this._defaults.height : this._naturalHeight;
-    this._data.scale = (this._defaults) ? this._defaults.scale : 1;
-    //set size
-    this.Width = this._data.width;
-    this.Height = this._data.height;
+    this.Width = (this._defaults) ? this._defaults.width : this._naturalWidth;
+    this.Height = (this._defaults) ? this._defaults.height : this._naturalHeight;
+    this.Scale = (this._defaults) ? this._defaults.scale : 1;
   }
+
+  private _lastScale?:number;
+  public scaleGlobally(scale:number):void {
+    console.log("GIVEN SCALE", scale);
+    if(this._lastScale == null) this._lastScale = scale;
+
+    const lastSize = {width:this.Width, height:this.Height};
+    console.log("LAST SIZE", lastSize);
+    //first, calcuate the new size
+    this.Scale = scale;
+    const newSize = {width:this.Element.parentElement.getBoundingClientRect().width, height:this.Element.parentElement.getBoundingClientRect().height};
+    console.log("NEW SIZE", newSize);
+    const x = newSize.width - lastSize.width;
+    const y = newSize.height - lastSize.height;
+    console.log("SCALE", x, y);
+
+    this.X = this._freezePosition.x * scale;
+    this.Y = this._freezePosition.y * scale;
+
+    // const scaleDiff = (scale - this._lastScale);
+    // const pixelX = x * scaleDiff;
+    // const pixelY = y * scaleDiff;
+    // console.warn("DIFF", scaleDiff);
+    // //move position with global impact
+    // // this.X *= scaleDiff;
+    // // this.Y *= scaleDiff;
+    // this.X += (pixelX)
+    // this.Y += (pixelY);
+    // // this.X += x;
+    // // this.Y += y;
+
+    this._lastScale = scale;
+  }
+
+
 
   public reset():void {
     //if there is default data on the component, set to defaults
@@ -218,6 +261,21 @@ export class SpriteComponent implements OnInit {
 
   // }
 
+
+  private _offset:{x:number, y:number};
+  public setOffset(x:number, y:number):void {
+    this._offset = {x, y};
+    console.log("MY OFFSET");
+    console.log(this._offset);
+  }
+  public clearOffset():void {
+    this._offset = {x:0, y:0};
+  }
+  // public moveWithOffset(x:number, y:number):void {
+  //   this.X = x + this._offset.x;
+  //   this.Y = y + this._offset.y;
+  // }
+
   //tests
   public isWithinBounds(x:number, y:number, width:number, height:number, threshold:number = 0):boolean {
     const rect = this.Rect;
@@ -229,6 +287,17 @@ export class SpriteComponent implements OnInit {
           if((rect.y + rect.height - tRect.y) < height)
             return true;
 
+    return false;
+  }
+
+
+  public isRectOverlap(x:number, y:number, width:number, height:number):boolean {
+    const rect = this.Rect;
+    // return (x < rect.x && width > rect.width && y < rect.y && height < rect.height);
+    // return rect.x < x + width && rect.x + rect.width > x && rect.y < y + height && rect.y + rect.height > y;
+    
+    if(x < rect.x + rect.width && rect.x < x + width && y < rect.y + rect.height)
+      return rect.y < y + height;
     return false;
   }
 
@@ -256,12 +325,20 @@ export class SpriteComponent implements OnInit {
   public get Element():HTMLElement { return this._element.nativeElement as HTMLElement; }
   public get Container():HTMLElement { return this._element.nativeElement.parentElement as HTMLElement; }
 
+  // public get Rect() {
+  //   return {
+  //     x: this._data.x,
+  //     y: this._data.y,
+  //     width: this.Element.getBoundingClientRect().width,
+  //     height: this.Element.getBoundingClientRect().height
+  //   };
+  // }
   public get Rect() {
     return {
       x: this._data.x,
       y: this._data.y,
-      width: this.Element.getBoundingClientRect().width,
-      height: this.Element.getBoundingClientRect().height
+      width: this._data.width,
+      height: this._data.height
     };
   }
 
@@ -273,13 +350,13 @@ export class SpriteComponent implements OnInit {
 
   public get X():number { return this._data.x; }
   public set X(value:number) {
-    this._data.x = Math.max(0, value); //don't let go less than 0
+    this._data.x = Math.max(0, value + this._offset.x); //don't let go less than 0
     //set in template
     (this._element.nativeElement.parentElement as HTMLElement).style.left = `${this._data.x}px`;
   }
   public get Y():number { return this._data.y; }
   public set Y(value:number) {
-    this._data.y = Math.max(0, value); //don't let go less than 0
+    this._data.y = Math.max(0, value + this._offset.y); //don't let go less than 0
     //set in template
     (this._element.nativeElement.parentElement as HTMLElement).style.top = `${this._data.y}px`;
   }
@@ -294,6 +371,13 @@ export class SpriteComponent implements OnInit {
     this._data.height = value;
     //set in template
     (this._element.nativeElement.parentElement as HTMLElement).style.height = `${this._data.height}px`;
+  }
+
+  public get Scale():number { return this._data.scale; }
+  public set Scale(value:number) {
+    this._data.scale = value;
+    //set in template
+    (this._element.nativeElement.parentElement as HTMLElement).style.transform = `scale(${this._data.scale})`;
   }
 
 

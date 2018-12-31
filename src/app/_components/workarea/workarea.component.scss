@@ -19,6 +19,16 @@
 }
 
 
+.selectionContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: seagreen;
+    opacity: 0.1;
+    user-select: none;
+    pointer-events: none;
+}
+
 .marquee {
     position: absolute;
     background: rgba(255, 0, 0, 0.329);
@@ -28,4 +38,5 @@
 
 app-sprite {
     position: absolute;
+    transform-origin: top left;
 }

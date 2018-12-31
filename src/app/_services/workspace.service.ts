@@ -11,6 +11,7 @@ import { MarqueeBehaviour } from '../_managers/_behaviours/MarqueeBehaviour';
 import { MoveBehaviour } from '../_managers/_behaviours/MoveBehaviour';
 import { SelectBehaviour } from '../_managers/_behaviours/SelectBehaviour';
 import { ISprite, IWorkspace } from '../_managers/LoadManager';
+import { ScaleBehaviour } from '../_managers/_behaviours/ScaleBehaviour';
 
 
 /**
@@ -18,6 +19,8 @@ import { ISprite, IWorkspace } from '../_managers/LoadManager';
  */
 @Injectable()
 export class WorkspaceService {
+
+  public static ACCEPTED_POWS:number[] = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192];
 
   private _title:string;
 
@@ -35,11 +38,14 @@ export class WorkspaceService {
   private _lastMouseX:number;
   private _lastMouseY:number;
 
+  private _selectionArea:{left:number, width:number, top:number, height:number};
+
   //property attributes
   public marqueeThreshold:number = 0.5;
   public moveIncrement:number = 1;
-  public snapToSprites:boolean;
+  public snapToSprites:boolean = false;
   public snapThreshold:number = 10;
+  public keepInBounds:boolean = false;
 
 
   //behaviours
@@ -47,6 +53,7 @@ export class WorkspaceService {
   private _selectBehaviour:SelectBehaviour;
   private _marqueeBehaviour:MarqueeBehaviour;
   private _moveBehaviour:MoveBehaviour;
+  private _scaleBehaviour:ScaleBehaviour;
 
   public onRequestContext:EventEmitter<string> = new EventEmitter();
   public onSetContext:EventEmitter<string> = new EventEmitter();
@@ -82,6 +89,9 @@ export class WorkspaceService {
 
     this._spriteLoadIndex = 0;
     this._spriteData = workspace.sprites;
+
+    this._selectedSpriteComponents = []; //temporary, hold sprite names for selection
+    this._calculateSelectionArea();
   }
 
   // WORKAREA
@@ -95,6 +105,7 @@ export class WorkspaceService {
     this._selectBehaviour = new SelectBehaviour(this._workareaComponent.Element);
     this._marqueeBehaviour = new MarqueeBehaviour(this._workareaComponent.Element, this._workareaComponent.MarqueeElement);
     this._moveBehaviour = new MoveBehaviour(this._workareaComponent.Element);
+    this._scaleBehaviour = new ScaleBehaviour(this._workareaComponent.Element);
 
     this.onLoaded.emit();
   }
@@ -119,6 +130,181 @@ export class WorkspaceService {
   }
   public offsetScale(scaleMultiplier:number):void {
     this.setScale(this._scale * scaleMultiplier);
+  }
+
+  public autosizeWorkarea():void {
+    const selection = [...this._selectedSpriteComponents];
+    //temp select all sprites
+    this.selectAllSprites();
+    //set size
+    this._workareaComponent.Width = this._selectionArea.left + this._selectionArea.width;
+    this._workareaComponent.Height = this._selectionArea.top + this._selectionArea.height;
+    //reset the selection
+    this._selectedSpriteComponents = selection;
+    this._calculateSelectionArea();
+  }
+
+  public packSprites(algorithm:string, allowResize:boolean, fitToSprites:boolean):void {
+    //pack the sprites into the sheet
+    //TODO: add algorithm changes
+
+    //try to fit into sheet
+    //hold sprites in case we can't do this
+    const oldSprites:SpriteComponent[] = [...this._spriteComponents];
+
+
+    //pack sprites by weight
+    const sprites:SpriteComponent[] = this._spriteComponents.sort((a, b) => (a.Width * a.Height) > (b.Width * b.Height) ? -1 : 1);
+    
+    console.warn("SORTED");
+    sprites.forEach(spr => {
+      console.log(spr.Element);
+    });
+
+
+    while(!this._packSprites(sprites)) {
+
+      if(allowResize) {
+        console.warn("I cannot pack! - Growing workspace to accomodate!");
+        //grow the workarea
+        const largestWorkarea = Math.max(this._workareaComponent.Width, this._workareaComponent.Height);
+        const pow:number = WorkspaceService.ACCEPTED_POWS.filter(p => p > largestWorkarea)[0];
+        console.log("POW: " + pow);
+        if(pow == undefined) break;
+
+        this._workareaComponent.Width = pow;
+        this._workareaComponent.Height = pow;
+
+      }
+      else break;
+
+      
+    }
+
+    //now, autosize
+    if(fitToSprites)
+      this.autosizeWorkarea();
+
+
+
+    
+
+  }
+
+  private _packSprites(sprites:SpriteComponent[]):boolean {
+
+    //iterate through sprites
+    for(let i = 0; i < sprites.length; i++) {
+      const spr:SpriteComponent = sprites[i];
+      //set the top sprite
+      if(i == 0) {
+        spr.X = 0;
+        spr.Y = 0;
+        continue;
+      }
+
+
+      let foundPlace:boolean = false;
+
+      //iterate through past sprites
+      const lastSprites = sprites.filter((sp, ind) => ind < i).sort((a, b) => a.Y > b.Y ? 1 : -1);
+      for(let n = 0; n < lastSprites.length; n++) {
+
+        const compSpr = lastSprites[n];
+
+        //test packing
+        const tryPack = this._tryToPackSprite(spr, compSpr, lastSprites);
+
+        if(tryPack.canPack) {
+          spr.X = tryPack.coords.x;
+          spr.Y = tryPack.coords.y;
+          //we found a spot to put this sprite, go to next sprite
+          foundPlace = true;
+          break;
+        }
+      }
+
+      if(!foundPlace) return false;
+
+
+      // for(let n = i-1; n >= 0; n--) {
+      //   if(foundPackSpot) continue;
+      //   const compSpr:SpriteComponent = sprites[n];
+
+      //   //test packing
+      //   const tryPack = this._tryToPackSprite(spr, compSpr, sprites.filter((sp, ind) => ind <= n));
+
+      //   console.log(tryPack);
+      //   if(tryPack.canPack) {
+      //     console.log("I CAN PACK YOU HERE!");
+      //     spr.X = tryPack.coords.x;
+      //     spr.Y = tryPack.coords.y;
+      //     foundPackSpot = true;
+      //   }
+      //   else {
+      //     return false;
+      //   }
+
+      // }
+    }
+
+    return true;
+
+  }
+
+  private _tryToPackSprite(spr:SpriteComponent, compare:SpriteComponent, compSprites:SpriteComponent[]):{canPack:boolean, coords:{x:number, y:number}} {
+    //sort by topmost first
+    // compSprites = compSprites.sort((a, b) => a.Y > b.Y ? 1 : -1);
+    console.log("COMPARE SPRITE", compare.Element);
+    console.log("SPRITES SORT");
+    compSprites.forEach(sp => console.log(sp.Element));
+    console.log("----");
+
+    let canPackTopRight:boolean = true;
+    let canPackBottomLeft:boolean = true;
+    /**The top-right position of the compare sprite. */
+    const tRPos = { x:compare.X + compare.Width, y:compare.Y };
+    /**The bottom-left position of the compare sprite. */
+    const bLPos = { x:compare.X, y:compare.Y + compare.Height };
+
+    //test whether we will stay in bounds if we place next to compare sprite
+    if((tRPos.x + spr.Width) > this._workareaComponent.Width) canPackTopRight = false;
+    if((bLPos.y + spr.Height) > this._workareaComponent.Height) canPackBottomLeft = false;
+
+    if(canPackTopRight || canPackBottomLeft) {
+      //iterate through children and check for overlap
+      for(let i = 0; i < compSprites.length; i++) {
+        const compSpr:SpriteComponent = compSprites[i];
+
+        const overlapTR = compSpr.isRectOverlap(tRPos.x, tRPos.y, spr.Width, spr.Height);
+        const overlapBL = compSpr.isRectOverlap(bLPos.x, bLPos.y, spr.Width, spr.Height);        
+
+        //FIRST, try top right
+        if(canPackTopRight && overlapTR) { 
+          canPackTopRight = false;
+        }
+        //NEXT, try bottom left
+        else if(canPackBottomLeft && overlapBL) { 
+          canPackBottomLeft = false; 
+        }
+
+        console.log("TRYING:", compSpr.Element, overlapTR, overlapBL, canPackTopRight, canPackBottomLeft);
+
+        // console.log("TESTING ON:", compSpr.Element, canPackTopRight, canPackBottomLeft);
+
+        //if we cannot pack this sprite, move on
+        if(!canPackTopRight && !canPackBottomLeft) {
+          continue;
+        }
+      }
+    }
+    
+    console.log("Placing:", spr.Element, canPackTopRight, canPackBottomLeft);
+    let canPackHere:boolean = canPackTopRight || canPackBottomLeft;
+    let coords:{x:number, y:number} = (canPackTopRight) ? tRPos : bLPos;
+    // let coords:{x:number, y:number} = (canPackTopRight) ? bLPos : tRPos;
+
+    return {canPack:canPackHere, coords};
   }
 
   // SPRITES
@@ -150,8 +336,23 @@ export class WorkspaceService {
    * @param spriteComponent The Sprite Component the workspace will remove.
    */
   public removeSprite(spriteComponent:SpriteComponent):void {
+    //remove from components list
     if(this._spriteComponents.includes(spriteComponent))
       this._spriteComponents.splice(this._spriteComponents.indexOf(spriteComponent), 1);
+    //remove from selected if there
+    if(this._selectedSpriteComponents.includes(spriteComponent))
+      this._selectedSpriteComponents.splice(this._selectedSpriteComponents.indexOf(spriteComponent), 1);
+    //remove from sprite data
+    if(this._spriteData.includes(spriteComponent.Data))
+      this._spriteData.splice(this._spriteData.indexOf(spriteComponent.Data), 1);
+
+    //change selection layout
+    this._calculateSelectionArea();
+  }
+
+  public removeCurrentSprite():void {
+    if(this.SelectedSpriteComponent != null)
+      this.removeSprite(this.SelectedSpriteComponent);
   }
 
   /**
@@ -166,7 +367,7 @@ export class WorkspaceService {
 
     spriteComponent.select();
 
-    this._calculateEdgeSprites();
+    this._calculateSelectionArea();
   }
 
   /**
@@ -189,14 +390,16 @@ export class WorkspaceService {
       this._selectedSpriteComponents.splice(this._selectedSpriteComponents.indexOf(spriteComponent), 1);
 
     spriteComponent.deselect();
+
+    this._calculateSelectionArea();
   }
 
   /**
    * Selects all sprite components.
    */
   public selectAllSprites():void {
-    for(let i = this._selectedSpriteComponents.length - 1; i >= 0; i--)
-      this.selectSprite(this._selectedSpriteComponents[i]);
+    for(let i = this._spriteComponents.length - 1; i >= 0; i--)
+      this.selectSprite(this._spriteComponents[i]);
   }
   /**
    * Deselects all sprite components.
@@ -309,16 +512,18 @@ export class WorkspaceService {
       case tools.Move:
         this.changeBehaviour(this._moveBehaviour);
         this.disableAllSprites();
-        //get top left sprite for positional information
-        this._calculateEdgeSprites();
         //listen to events
         this._moveBehaviour.onStartMove.subscribe(() => this._onMoveStart());
         this._moveBehaviour.onMove.subscribe((pos) => this._onMove(pos));
         this._moveBehaviour.onEndMove.subscribe(() => this._onMoveEnd());
         break;
+      //SCALE
       case tools.Scale:
-        //get top left sprite for positional information
-        this._calculateEdgeSprites();
+        this.changeBehaviour(this._scaleBehaviour);
+        this.disableAllSprites();
+        //listen to events
+        this._scaleBehaviour.onPositionChangeStart.subscribe(() => this._onScaleChangeStart());
+        this._scaleBehaviour.onPositionChange.subscribe(pos => this._onScaleChange(pos));
         break;
       case tools.Pan:
       case tools.Zoom:
@@ -329,38 +534,32 @@ export class WorkspaceService {
   }
 
 
-  private _calculateEdgeSprites():void {
-    if(this._selectedSpriteComponents.length <= 0) return;
+  private _calculateSelectionArea():void {
+    if(this._selectedSpriteComponents.length <= 0) {
+      this._workareaComponent.useSelectionContainer(0, 0, 0, 0);
+      return;
+    }
     if(this._selectedSpriteComponents.length == 1) {
-      let spr = this._selectedSpriteComponents[0];
-      this._edgeSprites = {left:spr, right:spr, top:spr, bottom:spr};
-      // this._selectedTopLeft = this._selectedSpriteComponents[0];
+      const sel:SpriteComponent = this._selectedSpriteComponents[0];
+      this._selectionArea = {left: sel.X, width:sel.Width, top: sel.Y, height:sel.Height};
+      this._workareaComponent.useSelectionContainer(this._selectionArea.left, this._selectionArea.top, this._selectionArea.width, this._selectionArea.height);
       return;
     }
 
-    this._selectedSpriteComponents.forEach((spr:SpriteComponent, i:number) => {
-      if(i == 0) this._edgeSprites = {left:spr, right:spr, top:spr, bottom:spr};
-      else {
-        //left/right
-        if(spr.X < this._edgeSprites.left.X) this._edgeSprites.left = spr;
-        if((spr.X + spr.Rect.width) >= (this._edgeSprites.right.X + this._edgeSprites.right.Width)) this._edgeSprites.right = spr;
-        //top/bottom
-        if(spr.Y < this._edgeSprites.top.Y) this._edgeSprites.top = spr;
-        if((spr.Y + spr.Rect.height) >= (this._edgeSprites.bottom.Y + this._edgeSprites.bottom.Height)) this._edgeSprites.bottom = spr;
-      }
+    const sel:SpriteComponent = this._selectedSpriteComponents[0];
+    this._selectionArea = {left: sel.X, width:sel.Width, top: sel.Y, height:sel.Height};
+    this._selectedSpriteComponents.forEach(spr => {
+      //left/right
+      this._selectionArea.left = Math.min(spr.X, this._selectionArea.left);
+      this._selectionArea.width = Math.max(spr.X + spr.Width, this._selectionArea.width);
+      //top/bottom
+      this._selectionArea.top = Math.min(spr.Y, this._selectionArea.top);
+      this._selectionArea.height = Math.max(spr.Y + spr.Height, this._selectionArea.height);
     });
+    this._selectionArea.width -= this._selectionArea.left;
+    this._selectionArea.height -= this._selectionArea.top;
 
-    console.warn("EDGES");
-    console.log(this._edgeSprites);
-
-
-    this._selectedTopLeft = this._selectedSpriteComponents.sort((a, b) => {
-      const left:boolean = a.X <= b.X;
-      const top:boolean = a.Y <= b.Y;
-      return (left && top) ? -1 : (left || top) ? -1 : 1;
-    })[0];
-
-    console.log(this._selectedTopLeft.Element);
+    this._workareaComponent.useSelectionContainer(this._selectionArea.left, this._selectionArea.top, this._selectionArea.width, this._selectionArea.height);
   }
 
 
@@ -380,47 +579,62 @@ export class WorkspaceService {
           this.deselectSprite(spr);
         }
     });
-
-
   }
-  
-  //MOVE
+
+
+  private _selectionAreaStart:{x:number, y:number};
   private _onMoveStart():void {
     console.log("MOVING");
 
-    // if(this._selectedTopLeft == null) this._calculateEdgeSprites();
-    // if(this._edgeSprites.left == null) this._calculateEdgeSprites();
-
-    // console.log(this._selectedSpriteComponents);
-
-    // console.log(this._selectedTopLeft);
-
     this._lastMouseX = this._workareaComponent.MousePosition.x;
     this._lastMouseY = this._workareaComponent.MousePosition.y;
+
+    this._selectionAreaStart = {x:this._selectionArea.left, y:this._selectionArea.top};
     
     this._selectedSpriteComponents.forEach(spr => {
-      spr.freezePosition();
-      // spr.setLastPositionOffset(-this.SelectedRect.x, -this.SelectedRect.y);
-      // if(spr == this._selectedTopLeft) spr.setLastPosition();
-      // else if(this._selectedTopLeft != null) spr.setLastPositionOffset(-this._selectedTopLeft.X, -this._selectedTopLeft.Y);
+      spr.setOffset(spr.X - this._selectionArea.left, spr.Y - this._selectionArea.top);
     });
   }
   private _onMove(pos:{x:number, y:number}):void {
-    let { x, y } = pos;
+    let {x, y} = pos;
 
     //set move to closest increment || INCREMENTS
     x = (this.moveIncrement >= 2) ? Math.ceil(x / this.moveIncrement) * this.moveIncrement : x;
     y = (this.moveIncrement >= 2) ? Math.ceil(y / this.moveIncrement) * this.moveIncrement : y;
 
-    console.log("CALLED");
-    this._keepInWorkareaBounds(x, y, true);
+    // console.log(x, y);
+
+    
+    this._selectionArea.left = Math.max(this._selectionAreaStart.x + x, 0);
+    this._selectionArea.top = Math.max(this._selectionAreaStart.y + y, 0);
+    
+    
+    if(this.keepInBounds) {
+      if(this._selectionAreaStart.x + x + this._selectionArea.width > this._workareaComponent.Width) this._selectionArea.left = this._workareaComponent.Width - this._selectionArea.width;
+      if(this._selectionAreaStart.y + y + this._selectionArea.height > this._workareaComponent.Height) this._selectionArea.top = this._workareaComponent.Height - this._selectionArea.height;
+    }
+    
+    //if we snap, try it now
     this._tryToSnapSelection(this._workareaComponent.MousePosition.x - this._lastMouseX, this._workareaComponent.MousePosition.y - this._lastMouseY);
 
+    // if(this._selectionArea.left + this._selectionArea.width + x > this._workareaComponent.Width) this._selectionArea.left = this._workareaComponent.Width - this._selectionArea.width;
+    // if(this._selectionArea.top + this._selectionArea.height + x > this._workareaComponent.Height) this._selectionArea.top = this._workareaComponent.Height - this._selectionArea.height;
+
+    const sel = this._selectionArea;
+    this._workareaComponent.useSelectionContainer(sel.left, sel.top, sel.width, sel.height);
+
+    this._selectedSpriteComponents.forEach(spr => {
+      spr.X = this._selectionArea.left;
+      spr.Y = this._selectionArea.top;
+      // spr.moveWithOffset(this._selectionArea.left + x, this._selectionArea.top + y);
+    })
+
+
     this._lastMouseX = this._workareaComponent.MousePosition.x;
-    this._lastMouseY = this._workareaComponent.MousePosition.y;    
+    this._lastMouseY = this._workareaComponent.MousePosition.y;   
   }
   private _onMoveEnd():void {
-    
+    this._selectedSpriteComponents.forEach(spr => spr.clearOffset() );
   }
 
   private _keepInWorkareaBounds(desiredX:number, desiredY:number, useAllSides:boolean = false):void {
@@ -446,25 +660,77 @@ export class WorkspaceService {
 
   }
 
+
+
   private _tryToSnapSelection(xVel:number, yVel:number):void {
-    // if(!this.snapToSprites) return;
+    if(!this.snapToSprites) return;
     
     //get sprites that are NOT selected to snap to
     const staticSprites:SpriteComponent[] = this._spriteComponents.filter(spr => !this._selectedSpriteComponents.includes(spr));
     if(staticSprites.length <= 0) return;
 
     //get the snap direction
-    if(xVel < 0) {
+    //LEFT RIGHT
+    // if(xVel < 0) {
+    if(true) {
       //try to snap left side to right edge of other components
-      const left = this._edgeSprites.left.X;
+      const left = this._selectionArea.left;
       const rightEdges:number[] = staticSprites.map(spr => spr.X + spr.Width);
       let closestEdgeIndex:number = this._getClosestElementIndex(left, rightEdges);
-      if(Math.abs(rightEdges[closestEdgeIndex] - left) < this.snapThreshold)
-        this._edgeSprites.left.X = rightEdges[closestEdgeIndex];
+      if(Math.abs(rightEdges[closestEdgeIndex] - left) < this.snapThreshold) {
+        this._selectionArea.left = rightEdges[closestEdgeIndex];
+      }
+      //try to snap left side to left edge of other components
       const leftEdges:number[] = staticSprites.map(spr => spr.X);
       closestEdgeIndex = this._getClosestElementIndex(left, leftEdges);
       if(Math.abs(leftEdges[closestEdgeIndex] - left) < this.snapThreshold)
-        this._edgeSprites.left.X = leftEdges[closestEdgeIndex];
+      this._selectionArea.left = leftEdges[closestEdgeIndex];
+    }
+    // if(xVel > 0) {
+    if(true) {
+      //try to snap right side to right edge of other components
+      const right = this._selectionArea.left + this._selectionArea.width;
+      const rightEdges:number[] = staticSprites.map(spr => spr.X + spr.Width);
+      let closestEdgeIndex:number = this._getClosestElementIndex(right, rightEdges);
+      if(Math.abs(rightEdges[closestEdgeIndex] - right) < this.snapThreshold) {
+        this._selectionArea.left = rightEdges[closestEdgeIndex] - this._selectionArea.width;
+      }
+      //try to snap right side to left edge of other components
+      const leftEdges:number[] = staticSprites.map(spr => spr.X);
+      closestEdgeIndex = this._getClosestElementIndex(right, leftEdges);
+      if(Math.abs(leftEdges[closestEdgeIndex] - right) < this.snapThreshold)
+      this._selectionArea.left = leftEdges[closestEdgeIndex] - this._selectionArea.width;
+    }
+    //UP DOWN
+    // if(yVel < 0) {
+    if(true) {
+      //try to snap top side to top edge of other components
+      const top = this._selectionArea.top;
+      const topEdges:number[] = staticSprites.map(spr => spr.Y);
+      let closestEdgeIndex:number = this._getClosestElementIndex(top, topEdges);
+      if(Math.abs(topEdges[closestEdgeIndex] - top) < this.snapThreshold) {
+        this._selectionArea.top = topEdges[closestEdgeIndex];
+      }
+      //try to snap top side to bottom edge of other components
+      const bottomEdges:number[] = staticSprites.map(spr => spr.Y + spr.Height);
+      closestEdgeIndex = this._getClosestElementIndex(top, bottomEdges);
+      if(Math.abs(bottomEdges[closestEdgeIndex] - top) < this.snapThreshold)
+      this._selectionArea.top = bottomEdges[closestEdgeIndex];
+    }
+    // if(yVel > 0) {
+    if(true) {
+      //try to snap bottom side to top edge of other components
+      const top = this._selectionArea.top + this._selectionArea.height;
+      const topEdges:number[] = staticSprites.map(spr => spr.Y);
+      let closestEdgeIndex:number = this._getClosestElementIndex(top, topEdges);
+      if(Math.abs(topEdges[closestEdgeIndex] - top) < this.snapThreshold) {
+        this._selectionArea.top = topEdges[closestEdgeIndex] - this._selectionArea.height;
+      }
+      //try to snap bottom side to bottom edge of other components
+      const bottomEdges:number[] = staticSprites.map(spr => spr.Y + spr.Height);
+      closestEdgeIndex = this._getClosestElementIndex(top, bottomEdges);
+      if(Math.abs(bottomEdges[closestEdgeIndex] - top) < this.snapThreshold)
+      this._selectionArea.top = bottomEdges[closestEdgeIndex] - this._selectionArea.height;
     }
 
   }
@@ -474,6 +740,21 @@ export class WorkspaceService {
       if(Math.abs(value - a) < Math.abs(value - arr[res])) res = i;
     });
     return res;
+  }
+
+
+
+
+  private _onScaleChangeStart():void {
+    this._spriteComponents.forEach(spr => spr.freezePosition());
+  }
+  private _onScaleChange(pos:{x:number, y:number}):void {
+    console.log(pos);
+    //scale with the x position
+    //also make it waaaaay smaller increments
+    const x:number = pos.x * 0.1;
+    //to test, do this to all sprites
+    this._spriteComponents.forEach(spr => spr.scaleGlobally(spr.Scale + x));
   }
 
 
@@ -497,5 +778,11 @@ export class WorkspaceService {
   
   public get SelectedSpriteComponents():SpriteComponent[] { return this._selectedSpriteComponents; }
   public get SelectedSpriteComponent():SpriteComponent { return this._selectedSpriteComponents.length == 1 ? this._selectedSpriteComponents[0] : null; }  
-  public get SelectedRect():{x:number,y:number,width:number,height:number} { return {x:this._edgeSprites.left.X, y:this._edgeSprites.top.Y, width:this._edgeSprites.right.X + this._edgeSprites.right.Width, height:this._edgeSprites.bottom.Y + this._edgeSprites.bottom.Height}; }
+  public get SelectedRect():{x:number,y:number,width:number,height:number} { 
+    return { x:this._edgeSprites.left.X, 
+            y:this._edgeSprites.top.Y, 
+            width:this._edgeSprites.right.X + this._edgeSprites.right.Width - this._edgeSprites.left.X, 
+            height:this._edgeSprites.bottom.Y + this._edgeSprites.bottom.Height - this._edgeSprites.top.Y
+          }; 
+  }
 }

@@ -21,6 +21,7 @@ import { ListPropertyGroupComponent } from './_components/_ui/_list-property/lis
 import { ToggleListPropertyGroupComponent } from './_components/_ui/_list-property/toggle-list-property-group/toggle-list-property-group.component';
 import { ToolsService } from './_services/tools.service';
 import { WorkspaceService } from './_services/workspace.service';
+import { MenuDialogsComponent } from './_components/_menus/menu-dialogs/menu-dialogs.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { WorkspaceService } from './_services/workspace.service';
     SpriteComponent,
     ListPropertyItemComponent,
     ListPropertyGroupComponent,
-    ToggleListPropertyGroupComponent
+    ToggleListPropertyGroupComponent,
+    MenuDialogsComponent
   ],
   imports: [
     BrowserModule,

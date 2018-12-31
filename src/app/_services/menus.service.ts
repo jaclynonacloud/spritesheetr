@@ -2,12 +2,14 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { MenuBarComponent } from '../_components/_menus/menu-bar/menu-bar.component';
 import { MenuPropertiesComponent } from '../_components/_menus/menu-properties/menu-properties.component';
 import { ToolsService } from './tools.service';
+import { MenuDialogsComponent } from '../_components/_menus/menu-dialogs/menu-dialogs.component';
 
 @Injectable()
 export class MenusService {
 
   private _menuBar:MenuBarComponent;
   private _menuProps:MenuPropertiesComponent;
+  private _menuDialogs:MenuDialogsComponent;
 
   private _requestedContexts:string[];
   private static _currentContext:string;
@@ -30,6 +32,10 @@ export class MenusService {
 
   public addMenuProperties(menuProps:MenuPropertiesComponent):void {
     this._menuProps = menuProps;
+  }
+
+  public addMenuDialogs(menuDialogs:MenuDialogsComponent):void {
+    this._menuDialogs = menuDialogs;
   }
 
   public load():void {
@@ -56,7 +62,28 @@ export class MenusService {
   public requestClear():void {
     this._requestedContexts = [];
   }
+
+
+  public disableShortcuts(disable:boolean):void {
+    this.onDisableShortcuts.emit(disable);
+  }
   /*------------------------------------------- EVENTS ---------------------------*/
+  public onKeyUp(e:KeyboardEvent):void {
+    //listen for enter key, and blur target
+    if(e.key == "Enter") (e.target as HTMLInputElement).blur();
+  }
+
+  public onNumberEvent(e:KeyboardEvent, min:number, max:number):void {
+    //force the value to be between min/max
+    if(e.key == "Enter") {
+      const val = (e.target as HTMLInputElement).value;
+      if(parseFloat(val) < min) (e.target as HTMLInputElement).value = min.toString();
+      if(parseFloat(val) > max) (e.target as HTMLInputElement).value = max.toString();
+      this.onKeyUp(e);
+    }
+  }
+
+
   private _onClickFinished():void {
     if(this._requestedContexts.length <= 0) return;
 
@@ -108,6 +135,7 @@ export class MenusService {
 
   public get MenuBar():MenuBarComponent { return this._menuBar;}
   public get MenuProps():MenuPropertiesComponent { return this._menuProps; }
+  public get MenuDialogs():MenuDialogsComponent { return this._menuDialogs; }
 
   public get CurrentContextTitle():string { return Object.keys(MenusService.CONTEXT)[Object.values(MenusService.CONTEXT).indexOf(MenusService._currentContext)]; }
 

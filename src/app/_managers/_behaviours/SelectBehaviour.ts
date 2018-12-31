@@ -82,7 +82,7 @@ export class SelectBehaviour implements IBehaviour {
         console.log("DONE");
     
         //emit change
-        this._onDrag(e);
+        // this._onDrag(e);
         this.onEndMove.emit();
 
         this._workareaElement.blur();

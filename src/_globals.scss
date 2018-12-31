@@ -11,6 +11,7 @@
 
 $background-colour: #d1d1d1;
 $background-dark-colour: #a5a5a5;
+$background-dark-colour-2: #2c2c2c;
 $alt-colour: #8ac582;
 
 // ui
@@ -34,6 +35,23 @@ $size-tablet: "screen and (max-width: 768px)";
 }
 .text-center {
     text-align: center;
+}
+
+
+%round-outline {
+    border: solid 1px #cccccc;
+    border-radius: 3px;
+
+    &:hover {
+        border-color: grey;
+    }
+}
+
+%close-icon {
+    background: url('/assets/images/ui/cross.png');
+}
+%close-icon-dark {
+    background: url('/assets/images/ui/cross-dark.png');
 }
 
 
