@@ -11,6 +11,7 @@ export class MenuDialogsComponent implements OnInit {
 
   @ViewChild("packSprite", {read:ElementRef}) packSpriteEl:ElementRef;
   @ViewChild("workspaceProps", {read:ElementRef}) workspacePropsEl:ElementRef;
+  @ViewChild("saveDialog", {read:ElementRef}) saveDialogEl:ElementRef;
 
   private _currentDialog:HTMLElement;
 
@@ -25,6 +26,8 @@ export class MenuDialogsComponent implements OnInit {
   public workProp_height:number;
   public workProp_colour:string;
   public workProp_transparent:boolean;
+  //--save dialog
+  public saveDialog_name:string;
 
   constructor(private _appService:AppService, private _menusService:MenusService) { }
 
@@ -56,6 +59,9 @@ export class MenuDialogsComponent implements OnInit {
         this.workProp_colour = this.Workarea.Colour;
         this.workProp_transparent = this.Workarea.Transparent;
         break;
+      case DIALOG.SaveDialog:
+        newDialog = this.SaveDialogElement;
+        break;
     }
 
     if(this._currentDialog == newDialog) return;
@@ -77,6 +83,7 @@ export class MenuDialogsComponent implements OnInit {
   public hideAllDialogs():void {
     this.hideDialog(this.PackSpriteElement);
     this.hideDialog(this.WorkspacePropsElement);
+    this.hideDialog(this.SaveDialogElement);
   }
   /*------------------------------------------- EVENTS ---------------------------*/
   public onCloseDialog():void {
@@ -104,15 +111,25 @@ export class MenuDialogsComponent implements OnInit {
     //hide the dialog
     this.hideDialog(this._currentDialog);
   }
+
+  public onSaveWorkspace():void {
+    if(this.saveDialog_name != "") {
+      this._appService.WorkspaceService.saveWorkspace(this.saveDialog_name);
+      //hide the dialog
+      this.hideDialog(this._currentDialog);
+    }
+  }
   /*------------------------------------------- OVERRIDES ------------------------*/
   /*------------------------------------------- GETTERS & SETTERS ----------------*/
   public static get DIALOG() { return Object.freeze({
     PackSprite : "pack-sprite",
-    WorkspaceProps : "workspace-props"
+    WorkspaceProps : "workspace-props",
+    SaveDialog : "save-dialog"
   });}
 
   public get PackSpriteElement():HTMLElement { return this.packSpriteEl.nativeElement as HTMLElement; }
   public get WorkspacePropsElement():HTMLElement { return this.workspacePropsEl.nativeElement as HTMLElement; }
+  public get SaveDialogElement():HTMLElement { return this.saveDialogEl.nativeElement as HTMLElement; }
 
   public get Workarea() { return this._appService.WorkspaceService.WorkareaComponent; }
 

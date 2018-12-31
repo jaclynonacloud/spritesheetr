@@ -7,11 +7,11 @@
     </header>
     <div class="menu-dialog__content">
       <!-- Packing -->
-      <div class="content__label">Packing Type</div>
+      <!-- <div class="content__label">Packing Type</div>
       <select [(ngModel)]="packSprites_packingType">
         <option value="left">Favour Left</option>
         <option value="top">Favour Top</option>
-      </select>
+      </select> -->
       <!-- Allow Resize -->
       <div class="content__label">Allow Resize</div>
       <label class="custom-checkbox" title="Allows workarea to resize to next ^2 if necessary.">
@@ -31,36 +31,94 @@
 </div>
 <!-- /Pack Spritesheet -->
 
-<!-- Pack Spritesheet -->
+<!-- Workspace Properties -->
 <div class="menu-dialog" #workspaceProps>
-    <div class="wrapper">
-      <header class="menu-dialog__header">
-        <h2 class="menu-dialog__header__title">Workspace Properties</h2>
-        <div class="menu-dialog__header__x" title="Close Dialog." (click)="onCloseDialog()"></div>
-      </header>
-      <div class="menu-dialog__content">
+  <div class="wrapper">
+    <header class="menu-dialog__header">
+      <h2 class="menu-dialog__header__title">Workspace Properties</h2>
+      <div class="menu-dialog__header__x" title="Close Dialog." (click)="onCloseDialog()"></div>
+    </header>
+    <div class="menu-dialog__content">
+      <!-- Title -->
+      <div class="content__label">Title</div>
+      <input id="sprName" type="text" [(ngModel)]="workProp_title" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onKeyUp($event)" maxlength="80">
+      <!-- Width/Height -->
+      <div class="content__label">Workarea Size</div>
+      <div>
+        <input type="number" [(ngModel)]="workProp_width" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onNumberEvent($event, 5, 99999)" min="5" max="99999">
+        <span class="pad">&#215;</span>
+        <input type="number" [(ngModel)]="workProp_height" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onNumberEvent($event, 5, 99999)" min="5" max="99999">
+      </div>
+      <!-- Colour -->
+      <div class="content__label">Colour</div>
+      <input type="color" [(ngModel)]="workProp_colour">
+      <!-- Transparency -->
+      <div class="content__label">Transparent BG</div>
+      <label class="custom-checkbox">
+        <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="workProp_transparent">
+        <span class="custom-checkbox__element"></span>
+      </label>
+      <!-- Submit -->
+      <button class="content__submit" (click)="onChangeWorkspaceProperties()">OK</button>
+    </div>
+  </div>
+</div>
+<!-- /Workspace Properties -->
+
+
+<!-- Save Dialog -->
+<div class="menu-dialog" #saveDialog>
+  <div class="wrapper">
+    <header class="menu-dialog__header">
+      <h2 class="menu-dialog__header__title">Save As...</h2>
+      <div class="menu-dialog__header__x" title="Close Dialog." (click)="onCloseDialog()"></div>
+    </header>
+    <div class="menu-dialog__content">
+      <!-- Name -->
+      <div class="content__label">Name</div>
+      <div class="row">
+        <input style="flex:1;" id="sprName" type="text" [(ngModel)]="saveDialog_name" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onKeyUp($event)" maxlength="80">
+        <span>.sheetr</span>
+      </div>
+      <div class="content__group" *ngIf="_appService.WorkspaceService">
+        <div class="content__group__label">Workspace Data</div>
         <!-- Title -->
         <div class="content__label">Title</div>
-        <input id="sprName" type="text" [(ngModel)]="workProp_title" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onKeyUp($event)" maxlength="80">
+        <input type="text" disabled [value]="_appService.WorkspaceService.Title">
         <!-- Width/Height -->
-        <div class="content__label">Workarea Size</div>
+        <div class="content__label">Size</div>
         <div>
-          <input type="number" [(ngModel)]="workProp_width" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onNumberEvent($event, 5, 99999)" min="5" max="99999">
+          <input type="number" disabled [value]="Workarea.Width">
           <span class="pad">&#215;</span>
-          <input type="number" [(ngModel)]="workProp_height" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onNumberEvent($event, 5, 99999)" min="5" max="99999">
+          <input type="number" disabled [value]="Workarea.Height">
         </div>
         <!-- Colour -->
         <div class="content__label">Colour</div>
-        <input type="color" [(ngModel)]="workProp_colour">
-        <!-- Transparency -->
+        <div>
+          <input type="color" disabled [value]="Workarea.Colour">
+          <span [innerHTML]="Workarea.Colour.toString().toUpperCase()"></span>
+        </div>
+        <!-- Transparent -->
         <div class="content__label">Transparent BG</div>
         <label class="custom-checkbox">
-          <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="workProp_transparent">
+          <input class="custom-checkbox__input" type="checkbox" disabled [checked]="Workarea.Transparent">
           <span class="custom-checkbox__element"></span>
         </label>
-        <!-- Submit -->
-        <button class="content__submit" (click)="onChangeWorkspaceProperties()">OK</button>
+        <!-- Sprites -->
+        <div class="content__label">Sprites</div>
+        <div *ngIf="_appService.WorkspaceService.SpriteComponents">{{_appService.WorkspaceService.SpriteComponents.length}}</div>
+        <div class="sprite-demos" *ngIf="_appService.WorkspaceService.SpriteComponents">
+          <div class="sprite-demos__sprite" *ngFor="let spr of _appService.WorkspaceService.SpriteComponents">
+            <div class="sprite-demos__sprite__title" [innerHTML]="spr.Name"></div>
+            <div class="sprite-demos__sprite__image">
+              <img [src]="spr.Data.src" [alt]="spr.Name">
+            </div>
+          </div>
+        </div>
       </div>
+      <!-- Submit -->
+      <button class="content__submit" (click)="onSaveWorkspace()">Save</button>
     </div>
   </div>
-  <!-- /Pack Spritesheet -->
+</div>
+<!-- /Save Dialog -->

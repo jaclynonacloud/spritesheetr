@@ -21,6 +21,10 @@ input, select, button {
 //inputs
 input, button, select {
     @extend %button;
+
+    &:disabled {
+        background: mix($button-colour, black, 95);
+    }
 }
 select {
     width: 100%;
@@ -68,6 +72,17 @@ button {
             @extend %checkbox-after;
             background: mix($alt-colour, $background-dark-colour, 50);
             border-color: grey;
+        }
+
+        &:disabled + .custom-checkbox__element {
+            background: mix($button-colour, black, 95);
+            cursor: default;
+        }
+        &:hover:disabled + .custom-checkbox__element::after {
+            background: unset;
+        }
+        &:checked:hover:disabled + .custom-checkbox__element::after {
+            background: mix($alt-colour, $background-dark-colour, 50);
         }
     }
 

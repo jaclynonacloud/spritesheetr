@@ -144,6 +144,27 @@ export class WorkspaceService {
     this._calculateSelectionArea();
   }
 
+  public saveWorkspace(saveName:string):void {
+    //create a json with save data
+    let saveData:IWorkspace = {
+      title : this._title,
+      width : this._workareaComponent.Width,
+      height : this._workareaComponent.Height,
+      bgColour : this._workareaComponent.Colour,
+      transparent : this._workareaComponent.Transparent,
+      sprites : []
+    };
+    
+    saveData.sprites = this._spriteComponents.map(spr => spr.Data);
+
+    //send data to a save dialog
+    const saveDataStream = `data:text/json;charset=utf-8, ${ encodeURIComponent(JSON.stringify(saveData))}`;
+    let saveDiv:HTMLAnchorElement = document.createElement("a");
+    saveDiv.setAttribute("href", saveDataStream);
+    saveDiv.setAttribute("download", `${saveName}.sheetr`);
+    saveDiv.click();
+  }
+
   public packSprites(algorithm:string, allowResize:boolean, fitToSprites:boolean):void {
     //pack the sprites into the sheet
     //TODO: add algorithm changes
@@ -213,11 +234,10 @@ export class WorkspaceService {
 
 
       let foundPlace:boolean = false;
+      let bestPos:{x:number, y:number};
 
       //iterate through past sprites
       // const lastSprites = sprites.filter((sp, ind) => ind < i).sort((a, b) => a.Y > b.Y ? 1 : -1);
-      //--prioritize top-left sprites first
-
       let sortingAlgorithm = this._favourTopSort;
       switch(algorithm) {
         case "left":
@@ -236,36 +256,27 @@ export class WorkspaceService {
         const tryPack = this._tryToPackSprite(spr, compSpr, lastSprites);
 
         if(tryPack.canPack) {
-          spr.X = tryPack.coords.x;
-          spr.Y = tryPack.coords.y;
-          //we found a spot to put this sprite, go to next sprite
+          if(bestPos == null) {
+            bestPos = tryPack.coords;
+            const tryPackDist = Math.sqrt(Math.pow(tryPack.coords.x, 2) + Math.pow(tryPack.coords.y, 2));
+          }
+          else {
+            const tryPackDist = Math.sqrt(Math.pow(tryPack.coords.x, 2) + Math.pow(tryPack.coords.y, 2));
+            const bestPosDist = Math.sqrt(Math.pow(bestPos.x, 2) + Math.pow(bestPos.y, 2));
+
+            if(tryPackDist < bestPosDist) bestPos = tryPack.coords;
+          }
+
           foundPlace = true;
-          break;
         }
       }
 
       if(!foundPlace) return false;
-
-
-      // for(let n = i-1; n >= 0; n--) {
-      //   if(foundPackSpot) continue;
-      //   const compSpr:SpriteComponent = sprites[n];
-
-      //   //test packing
-      //   const tryPack = this._tryToPackSprite(spr, compSpr, sprites.filter((sp, ind) => ind <= n));
-
-      //   console.log(tryPack);
-      //   if(tryPack.canPack) {
-      //     console.log("I CAN PACK YOU HERE!");
-      //     spr.X = tryPack.coords.x;
-      //     spr.Y = tryPack.coords.y;
-      //     foundPackSpot = true;
-      //   }
-      //   else {
-      //     return false;
-      //   }
-
-      // }
+      else {
+        //set to best position
+        spr.X = bestPos.x;
+        spr.Y = bestPos.y;
+      }
     }
 
     return true;
@@ -273,13 +284,6 @@ export class WorkspaceService {
   }
 
   private _tryToPackSprite(spr:SpriteComponent, compare:SpriteComponent, compSprites:SpriteComponent[]):{canPack:boolean, coords:{x:number, y:number}} {
-    //sort by topmost first
-    // compSprites = compSprites.sort((a, b) => a.Y > b.Y ? 1 : -1);
-    console.log("COMPARE SPRITE", compare.Element);
-    console.log("SPRITES SORT");
-    compSprites.forEach(sp => console.log(sp.Element));
-    console.log("----");
-
     let canPackTopRight:boolean = true;
     let canPackBottomLeft:boolean = true;
     /**The top-right position of the compare sprite. */
@@ -304,13 +308,9 @@ export class WorkspaceService {
           canPackTopRight = false;
         }
         //NEXT, try bottom left
-        else if(canPackBottomLeft && overlapBL) { 
+        if(canPackBottomLeft && overlapBL) { 
           canPackBottomLeft = false; 
         }
-
-        console.log("TRYING:", compSpr.Element, overlapTR, overlapBL, canPackTopRight, canPackBottomLeft);
-
-        // console.log("TESTING ON:", compSpr.Element, canPackTopRight, canPackBottomLeft);
 
         //if we cannot pack this sprite, move on
         if(!canPackTopRight && !canPackBottomLeft) {
@@ -319,10 +319,14 @@ export class WorkspaceService {
       }
     }
     
-    console.log("Placing:", spr.Element, canPackTopRight, canPackBottomLeft);
     let canPackHere:boolean = canPackTopRight || canPackBottomLeft;
     let coords:{x:number, y:number} = (canPackTopRight) ? tRPos : bLPos;
-    // let coords:{x:number, y:number} = (canPackTopRight) ? bLPos : tRPos;
+    //if both are viable, find the shortest distance to origin
+    if(canPackTopRight && canPackBottomLeft) {
+      const tRDist = Math.sqrt(Math.pow(tRPos.x, 2) + Math.pow(tRPos.y, 2));
+      const bLDist = Math.sqrt(Math.pow(bLPos.x, 2) + Math.pow(bLPos.y, 2));
+      coords = (tRDist < bLDist) ? tRPos : bLPos;
+    }
 
     return {canPack:canPackHere, coords};
   }
@@ -796,6 +800,7 @@ export class WorkspaceService {
   public set SpriteData(spriteData:ISprite[]) { this._spriteData = spriteData; }
   public get SpriteData():ISprite[] { return this._spriteData; }
   
+  public get SpriteComponents():SpriteComponent[] { return this._spriteComponents; }
   public get SelectedSpriteComponents():SpriteComponent[] { return this._selectedSpriteComponents; }
   public get SelectedSpriteComponent():SpriteComponent { return this._selectedSpriteComponents.length == 1 ? this._selectedSpriteComponents[0] : null; }  
   public get SelectedRect():{x:number,y:number,width:number,height:number} { 

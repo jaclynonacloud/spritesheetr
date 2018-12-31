@@ -129,6 +129,7 @@ export class AppService {
 
   public save():void {
     console.log("Save spritesheetr file!");
+    this._menusService.MenuDialogs.openDialog("save-dialog");
   }
 
   public export():void {

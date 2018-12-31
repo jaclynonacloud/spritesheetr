@@ -61,7 +61,7 @@ $size-tablet: "screen and (max-width: 768px)";
     user-select: none;
     outline: none;
 
-    &:hover {
+    &:hover:not(:disabled) {
         background: mix($alt-colour, white, 40);
     }
 }
