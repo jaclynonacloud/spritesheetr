@@ -64,6 +64,9 @@
       <!-- Scale Menu -->
       <div class="group select" (click)="_onContextClick()" *ngIf="CurrentTool == TOOL.Scale">
           <div class="title">Scale Options</div>
+          <div class="row" style="color:red">
+            FOR THE LOVE OF GOD DON'T USE THIS TOOL!!!
+          </div>
           <div class="row center first">
             <button >Scale from Global</button>
           </div>
@@ -122,6 +125,12 @@
             <label for="sprScale">Scale</label>
             <input id="sprScale" type="text" [(ngModel)]="SelectedSprite.Scale" disabled title="To change scale, use the scale tool.">
           </div>
+          <div class="row">
+            <label for="sprPiv">Piv X</label>
+            <input id="sprPiv" type="number" [(ngModel)]="SelectedSprite.Pivot.x" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onKeyUp($event)"  min="0" max="1" step="0.1">
+            <span class="pad">Piv Y</span>
+            <input type="number" [(ngModel)]="SelectedSprite.Pivot.y" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onKeyUp($event)" min="0" max="1" step="0.1">
+          </div>
 
           <div class="row center">
             <button>Reset</button>
@@ -159,10 +168,7 @@
           </label>
         </div>
         <div class="row center">
-          <button (click)="_workspaceService.autosizeWorkarea()">Autosize</button>
-        </div>
-        <div class="row center">
-          <button (click)="_workspaceService.packSprites('', true, true)">DEBUG Pack</button>
+          <button (click)="_workspaceService.autosizeWorkarea()" title="Autosizes the workarea to fit current sprites.">Autosize</button>
         </div>
 
         <hr>
@@ -171,6 +177,11 @@
         <div class="row small first">
           <span>Quality: </span>
           <span [innerHTML]="_currentQuality"></span>
+        </div>
+
+
+        <div class="row">
+          <button (click)="_workspaceService.buildSpritesheet()">Build Spritesheet</button>
         </div>
         
       </div>

@@ -44,6 +44,7 @@ export class MenuBarComponent implements OnInit {
       { title:"Save", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Save), callback:this._appService.save.bind(this._appService) },
       { title:"_separator", callback:null },
       { title:"Export", shortcut:AppService.GetShortcut(AppService.SHORTCUTS.Export), callback:this._appService.export.bind(this._appService) },
+      // { title:"Properties...", callback:() => this._appService.MenusService.MenuDialogs.openDialog(MenuDialogsComponent.DIALOG.WorkspaceProps) },
       { title:"<i>Export Unique</i>", callback:null }
     ];
     this._fileOptionsProps = this._getOptionProps(this._fileOptions);

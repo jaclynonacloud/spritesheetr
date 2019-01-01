@@ -88,9 +88,12 @@ export class WorkspaceService {
     this._workareaComponent.Colour = workspace.bgColour || "#ffffff";
 
     this._spriteLoadIndex = 0;
+    
+    this._spriteComponents = [];
+    this._selectedSpriteComponents = []; //temporary, hold sprite names for selection
+
     this._spriteData = workspace.sprites;
 
-    this._selectedSpriteComponents = []; //temporary, hold sprite names for selection
     this._calculateSelectionArea();
   }
 
@@ -121,6 +124,7 @@ export class WorkspaceService {
 
   public setQuality(quality:string):void {
     this._spriteComponents.forEach((spr:SpriteComponent) => spr.setQuality(quality));
+    this._quality = quality;
   }
 
   public setScale(scale:number):void {
@@ -165,13 +169,70 @@ export class WorkspaceService {
     saveDiv.click();
   }
 
+  public async buildSpritesheet():Promise<HTMLImageElement> {
+
+    return new Promise<HTMLImageElement>((res, rej) => {
+
+      //setup for build
+      let bgColour:string = this._workareaComponent.Colour;
+      let isTransparent:boolean = this._workareaComponent.Transparent;
+      let selection:SpriteComponent[] = [...this._selectedSpriteComponents];
+
+      this._workareaComponent.Element.classList.add("renderable");
+      this.deselectAllSprites();
+
+      //remove background
+      if(isTransparent) {
+        this._workareaComponent.Element.style.background = "transparent";
+        this._workareaComponent.Element.classList.remove("transparent");
+      }
+
+      //build the canvas
+      html2canvas(document.querySelector("#workarea"), {
+        backgroundColor: null,
+        allowTaint: true
+      })
+        .then(canvas => {
+            // create an image
+            let img = document.createElement("img");
+            img.src = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            img.alt = "spritesheet preview";
+            // if(!isTransparent) img.style.background = bgColour;
+
+
+            //testing
+            // img.style.position = "absolute";
+            // img.style.top = "0px";
+            // document.body.appendChild(img);
+
+            //reset workarea
+            this._workareaComponent.Transparent = isTransparent;
+            this._workareaComponent.Colour = bgColour;
+
+            this._workareaComponent.Element.classList.remove("renderable");
+            selection.forEach(spr => this.selectSprite(spr));
+
+            res(img);
+        });
+
+    });
+
+    
+  }
+
   public packSprites(algorithm:string, allowResize:boolean, fitToSprites:boolean):void {
+    //deselect all
+    this.deselectAllSprites();
+
     //pack the sprites into the sheet
     //TODO: add algorithm changes
 
     //try to fit into sheet
     //hold sprites in case we can't do this
-    const oldSprites:SpriteComponent[] = [...this._spriteComponents];
+    const oldSprites:{x:number, y:number}[] = this._spriteComponents.map(spr => {
+      const res:{x:number, y:number} = {x:spr.X, y:spr.Y};
+      return res;
+    });
 
 
     //pack sprites by weight
@@ -197,7 +258,14 @@ export class WorkspaceService {
         this._workareaComponent.Height = pow;
 
       }
-      else break;
+      else {
+        console.warn("COULD NOT PACK SPRITES!");
+        this._spriteComponents.forEach((spr, i) => {
+          spr.X = oldSprites[i].x;
+          spr.Y = oldSprites[i].y;
+        });
+        break;
+      }
 
       
     }
@@ -552,6 +620,7 @@ export class WorkspaceService {
       case tools.Pan:
       case tools.Zoom:
       case tools.Delete:
+        this.changeBehaviour(null);
         this.disableAllSprites();
         break;
     }
@@ -561,6 +630,7 @@ export class WorkspaceService {
   private _calculateSelectionArea():void {
     if(this._selectedSpriteComponents.length <= 0) {
       this._workareaComponent.useSelectionContainer(0, 0, 0, 0);
+      this._selectionArea = {left:0, width:0, top:0, height:0};
       return;
     }
     if(this._selectedSpriteComponents.length == 1) {

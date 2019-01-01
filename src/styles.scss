@@ -14,6 +14,17 @@ input, select, button {
     @extend %Quicksand;
 }
 
+pre {
+    @extend %Quicksand-Light;
+    margin: 0;
+
+    .key { color: #b41010; }
+    .number { color: #0d42b4; }
+    .string { color: #bb930f; }
+    .boolean { color: #1fbe10; }
+    .null { color: #3e2c55; }
+}
+
 
 
 
@@ -31,6 +42,7 @@ select {
     padding: 3px 5px;
     font-size: 0.85em;
     -webkit-appearance: listbox;
+    cursor: pointer;
 
     &::-ms-expand {
         display: none;

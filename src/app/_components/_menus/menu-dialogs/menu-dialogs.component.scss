@@ -98,12 +98,14 @@ $border-settings: solid 1px mix($background-dark-colour-2, grey, 50);
 
     .content {
         &__group {
+            flex: 1;
             grid-column: span 2;
             display: grid;
             grid-template-columns: minmax(120px, 1fr) 2fr;
             grid-auto-rows: minmax(30px, max-content);
             grid-row-gap: 5px;
             width: 100%;
+            max-height: inherit;
             padding: 4px;
             border: dotted 1px grey;
             box-sizing: border-box;
@@ -169,4 +171,51 @@ $border-settings: solid 1px mix($background-dark-colour-2, grey, 50);
             
         }
     }
+
+
+
+    &--large {
+        .wrapper {
+            flex-flow: row wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 90vw;
+            min-width: 500px;
+            border-top: 0;
+            overflow: auto;
+        }
+
+
+
+        .details {
+            flex: 0 0 auto;
+            min-width: 500px;
+            width: 40%;
+            min-height: 500px;
+            max-height: 100%;
+            margin-right: 10px;
+            border-top: solid 1px grey;
+        }
+
+        .viewer {
+            flex: 1;
+            background: $button-colour;
+            min-width: 400px;
+            height: 100%;
+            padding: 5px;
+            border: solid 1px grey;
+            box-sizing: border-box;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+    }
+
+
+
+    .content-preview {
+        grid-column: span 2;
+        overflow-y: auto;
+        max-height: 45vh;
+    }
+    
 }

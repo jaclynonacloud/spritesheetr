@@ -58,6 +58,14 @@
         <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="workProp_transparent">
         <span class="custom-checkbox__element"></span>
       </label>
+      <!-- Quality -->
+      <div class="content__label">Render Quality</div>
+      <select [(ngModel)]="workProp_quality">
+        <option value="q--auto">Default</option>
+        <option value="q--crisp-edges">Crisp Edges</option>
+        <option value="q--pixelated">Pixelated</option>
+        <option value="q--optimize-quality">Optimize Quality</option>
+      </select>
       <!-- Submit -->
       <button class="content__submit" (click)="onChangeWorkspaceProperties()">OK</button>
     </div>
@@ -77,7 +85,7 @@
       <!-- Name -->
       <div class="content__label">Name</div>
       <div class="row">
-        <input style="flex:1;" id="sprName" type="text" [(ngModel)]="saveDialog_name" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onKeyUp($event)" maxlength="80">
+        <input style="flex:1;" type="text" [(ngModel)]="saveDialog_name" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="_menusService.onKeyUp($event)" maxlength="80">
         <span>.sheetr</span>
       </div>
       <div class="content__group" *ngIf="_appService.WorkspaceService">
@@ -122,3 +130,56 @@
   </div>
 </div>
 <!-- /Save Dialog -->
+
+
+<!-- Export Dialog -->
+<div class="menu-dialog menu-dialog--large" #exportDialog>
+  <div class="wrapper">
+    <div class="details">
+      <header class="menu-dialog__header">
+        <h2 class="menu-dialog__header__title">Export</h2>
+        <div class="menu-dialog__header__x" title="Close Dialog." (click)="onCloseDialog()"></div>
+      </header>
+      <div class="menu-dialog__content">
+        <!-- Type -->
+        <div class="content__label">Export Type</div>
+        <select [(ngModel)]="exportDialog_type" (change)="onChangeExportType()">
+          <option value="json">json</option>
+          <option value="json-frames">json w/ frames</option>
+          <option value="json-frames-array">json w/ frames array</option>
+          <option value="text">text</option>
+          <option value="css">css</option>
+          <option value="xml">xml</option>
+        </select>
+        <!-- Image Name -->
+        <div class="content__label">Image Name</div>
+        <div class="row">
+          <input style="flex:1;" type="text" [(ngModel)]="exportDialog_imgName" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="onChangeExportName($event)" maxlength="80" spellcheck="false">
+          <span>.png</span>
+        </div>
+        <!-- Spritesheet Name -->
+        <div class="content__label">Spritesheet Name</div>
+        <div class="row">
+          <input style="flex:1;" type="text" [(ngModel)]="exportDialog_sheetName" (focus)="_menusService.disableShortcuts(true)" (blur)="_menusService.disableShortcuts(false)" (keyup)="onChangeExportName($event)" maxlength="80" [disabled]="exportDialog_lockNames" spellcheck="false">
+          <span [innerHTML]="exportDialog_sheetExt"></span>
+        </div>
+        <!-- Lock Names -->
+        <div class="content__label">Lock Names</div>
+        <label class="custom-checkbox" title="Makes image name and spritesheet name match.">
+          <input class="custom-checkbox__input" type="checkbox" [(ngModel)]="exportDialog_lockNames" (change)="onChangeExportLock()">
+          <span class="custom-checkbox__element"></span>
+        </label>
+        <!-- JSON Preview -->
+        <div class="content__group">
+          <pre class="content-preview" #exportPreview></pre>
+        </div>
+        <!-- Submit -->
+        <button class="content__submit" (click)="onExport()">Export</button>
+      </div>
+    </div>
+    <!-- Viewer -->
+    <div class="viewer" #exportViewer>
+    </div>
+  </div>
+</div>
+<!-- /Export Dialog -->

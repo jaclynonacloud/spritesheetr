@@ -21,6 +21,7 @@ export class SpriteComponent implements OnInit {
 
   private _quality:string;
   private _scale:number;
+  private _pivot:{x:number, y:number};
 
   //used for movement
   private _lastPosition:{x:number, y:number};
@@ -36,6 +37,7 @@ export class SpriteComponent implements OnInit {
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   ngOnInit() {
     this._quality = "";
+    this._pivot = {x:0.5, y:0.5};
 
     this.clearOffset();
 
@@ -70,6 +72,7 @@ export class SpriteComponent implements OnInit {
 
     //add some required defaults if none available
     this.Scale = (this._data.scale) ? this._data.scale : 1;
+    this.Pivot = (this._data.pivot) ? this._data.pivot : this._pivot;
 
 
     this._defaults = data;
@@ -378,6 +381,12 @@ export class SpriteComponent implements OnInit {
     this._data.scale = value;
     //set in template
     (this._element.nativeElement.parentElement as HTMLElement).style.transform = `scale(${this._data.scale})`;
+  }
+
+  public get Pivot():{x:number, y:number} { return this._data.pivot; }
+  public set Pivot(value:{x:number, y:number}) {
+    this._data.pivot = value;
+    //TODO: set in template 
   }
 
 

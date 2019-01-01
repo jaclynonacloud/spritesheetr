@@ -16,6 +16,10 @@
     &.transparent {
         background-image: url('/assets/images/ui/transparent.png') !important;
     }
+
+    &.renderable {
+        border: none;
+    }
 }
 
 

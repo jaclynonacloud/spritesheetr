@@ -126,5 +126,6 @@ export interface ISprite {
     width:number;
     height:number;
     scale?:number;
-    src?:string;    
+    src?:string;  
+    pivot?:{x:number, y:number};
 }

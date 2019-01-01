@@ -134,6 +134,7 @@ export class AppService {
 
   public export():void {
     console.log("Open export spritesheetr dialog!");
+    this._menusService.MenuDialogs.openDialog("export-dialog");
   }
 
   public undo():void {

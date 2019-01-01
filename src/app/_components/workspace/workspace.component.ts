@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AppService } from '../../_services/app.service';
 import { WorkspaceService } from '../../_services/workspace.service';
+import { MenusService } from '../../_services/menus.service';
 
 @Component({
   selector: 'app-workspace',
@@ -9,7 +10,7 @@ import { WorkspaceService } from '../../_services/workspace.service';
 })
 export class WorkspaceComponent implements OnInit {
 
-  constructor(private _workspaceService:WorkspaceService) { }
+  constructor(private _workspaceService:WorkspaceService, private _menusService:MenusService) { }
 
   /*------------------------------------------- LIFECYCLE HOOKS ------------------*/
   ngOnInit() {
