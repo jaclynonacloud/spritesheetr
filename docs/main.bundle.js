@@ -3674,7 +3674,6 @@ var WorkspaceService = /** @class */ (function () {
         this._spriteLoadIndex = 0;
         this._lastMouseX = 0;
         this._lastMouseY = 0;
-        this.clearWorkarea();
         this._edgeSprites = { left: null, right: null, top: null, bottom: null };
     };
     WorkspaceService.prototype.loadWorkspace = function (workspace) {
@@ -3694,6 +3693,7 @@ var WorkspaceService = /** @class */ (function () {
     // WORKAREA
     WorkspaceService.prototype.addWorkarea = function (workareaComponent) {
         this._workareaComponent = workareaComponent;
+        this.clearWorkarea();
         //setup AFTER workarea is assigned
         //give behaviours their dependants
         this._currentBehaviour = null;
