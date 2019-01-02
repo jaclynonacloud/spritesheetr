@@ -3674,6 +3674,7 @@ var WorkspaceService = /** @class */ (function () {
         this._spriteLoadIndex = 0;
         this._lastMouseX = 0;
         this._lastMouseY = 0;
+        this.clearWorkarea();
         this._edgeSprites = { left: null, right: null, top: null, bottom: null };
     };
     WorkspaceService.prototype.loadWorkspace = function (workspace) {
@@ -3738,7 +3739,7 @@ var WorkspaceService = /** @class */ (function () {
             this.removeSprite(this._spriteComponents[0]);
         }
         this._spriteComponents = [];
-        this._spriteData = [];
+        this._spriteData = new Array();
         this._spriteLoadIndex = 0;
         this._workareaComponent.clear();
     };

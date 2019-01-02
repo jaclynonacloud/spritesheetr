@@ -75,6 +75,8 @@ export class WorkspaceService {
     this._lastMouseX = 0;
     this._lastMouseY = 0;
 
+    this.clearWorkarea();
+
     this._edgeSprites = {left:null, right:null, top:null, bottom:null};
   }
 
@@ -155,8 +157,9 @@ export class WorkspaceService {
     while(this._spriteComponents.length > 0) {
       this.removeSprite(this._spriteComponents[0]);
     }
+
     this._spriteComponents = [];
-    this._spriteData = [];
+    this._spriteData = new Array();
     this._spriteLoadIndex = 0;
 
     this._workareaComponent.clear();
