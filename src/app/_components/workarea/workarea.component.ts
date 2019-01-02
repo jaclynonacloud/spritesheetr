@@ -30,8 +30,7 @@ export class WorkareaComponent implements OnInit {
   ngOnInit() {
     this._workspaceService.addWorkarea(this);
     //setup initials
-    this.Scale = 1;
-    this.Colour = "#8C7770";
+    this.clear();
 
     this.Element.addEventListener("mousemove", (e:MouseEvent) => {this._mousePosition = {x:e.clientX - this.Element.offsetLeft, y:e.clientY - this.Element.offsetTop};});
   }
@@ -43,6 +42,14 @@ export class WorkareaComponent implements OnInit {
     this.selectionContainer.nativeElement.style.top = `${y}px`;
     this.selectionContainer.nativeElement.style.width = `${width}px`;
     this.selectionContainer.nativeElement.style.height = `${height}px`;
+  }
+
+  public clear():void {
+    this.Width = 512;
+    this.Height = 512;
+    this.Scale = 1;
+    this.Colour = "#DCE3E6";
+    this.Transparent = false;
   }
   /*------------------------------------------- EVENTS ---------------------------*/
   /*------------------------------------------- OVERRIDES ------------------------*/

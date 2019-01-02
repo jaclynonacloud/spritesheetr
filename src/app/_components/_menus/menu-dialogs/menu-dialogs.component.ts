@@ -333,7 +333,7 @@ export class MenuDialogsComponent implements OnInit {
     sheetDiv.click();
 
     //hide the dialog
-    // this.hideDialog(this._currentDialog);
+    this.hideDialog(this._currentDialog);
     
   }
 

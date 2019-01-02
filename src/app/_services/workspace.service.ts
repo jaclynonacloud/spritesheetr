@@ -148,6 +148,17 @@ export class WorkspaceService {
     this._calculateSelectionArea();
   }
 
+  public clearWorkarea():void {
+    this.setTitle("");
+    // this._spriteComponents.forEach(spr => this.removeSprite(spr));
+
+    for(let i = this._spriteComponents.length - 1; i >= 0; i--) {
+      this.removeSprite(this._spriteComponents[i]);
+    }
+
+    this._workareaComponent.clear();
+  }
+
   public saveWorkspace(saveName:string):void {
     //create a json with save data
     let saveData:IWorkspace = {

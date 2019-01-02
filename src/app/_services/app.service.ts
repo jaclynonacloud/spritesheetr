@@ -101,6 +101,11 @@ export class AppService {
   // Calls
   public new():void {
     console.log("Create NEW spritesheetr!");
+    if(this._workspaceService.SpriteComponents.length > 0) {
+      if(confirm("Are you sure you want to clear the workspace?"))
+        this._workspaceService.clearWorkarea();
+    }
+    else this._workspaceService.clearWorkarea();
   }
 
   public open():void {
