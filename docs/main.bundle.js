@@ -1793,8 +1793,8 @@ var SpriteComponent = /** @class */ (function () {
     SpriteComponent.prototype.load = function (data) {
         this._data = data;
         //add some required defaults if none available
-        this.Scale = (this._data.scale) ? this._data.scale : 1;
-        this.Pivot = (this._data.pivot) ? this._data.pivot : this._pivot;
+        this.Scale = (this._data.scale != null) ? this._data.scale : 1;
+        this.Pivot = (this._data.pivot != null) ? this._data.pivot : this._pivot;
         this._defaults = data;
         //listen to change BEFORE calling it
         // this._data.onChange.subscribe((prop:string) => this._onContextChange(prop));
@@ -3734,10 +3734,12 @@ var WorkspaceService = /** @class */ (function () {
     };
     WorkspaceService.prototype.clearWorkarea = function () {
         this.setTitle("");
-        // this._spriteComponents.forEach(spr => this.removeSprite(spr));
-        for (var i = this._spriteComponents.length - 1; i >= 0; i--) {
-            this.removeSprite(this._spriteComponents[i]);
+        while (this._spriteComponents.length > 0) {
+            this.removeSprite(this._spriteComponents[0]);
         }
+        this._spriteComponents = [];
+        this._spriteData = [];
+        this._spriteLoadIndex = 0;
         this._workareaComponent.clear();
     };
     WorkspaceService.prototype.saveWorkspace = function (saveName) {

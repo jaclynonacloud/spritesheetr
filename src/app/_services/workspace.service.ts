@@ -150,11 +150,14 @@ export class WorkspaceService {
 
   public clearWorkarea():void {
     this.setTitle("");
-    // this._spriteComponents.forEach(spr => this.removeSprite(spr));
 
-    for(let i = this._spriteComponents.length - 1; i >= 0; i--) {
-      this.removeSprite(this._spriteComponents[i]);
+
+    while(this._spriteComponents.length > 0) {
+      this.removeSprite(this._spriteComponents[0]);
     }
+    this._spriteComponents = [];
+    this._spriteData = [];
+    this._spriteLoadIndex = 0;
 
     this._workareaComponent.clear();
   }

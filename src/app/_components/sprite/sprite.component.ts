@@ -71,8 +71,8 @@ export class SpriteComponent implements OnInit {
     this._data = data;
 
     //add some required defaults if none available
-    this.Scale = (this._data.scale) ? this._data.scale : 1;
-    this.Pivot = (this._data.pivot) ? this._data.pivot : this._pivot;
+    this.Scale = (this._data.scale != null) ? this._data.scale : 1;
+    this.Pivot = (this._data.pivot != null) ? this._data.pivot : this._pivot;
 
 
     this._defaults = data;
