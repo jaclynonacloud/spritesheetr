@@ -179,7 +179,7 @@ export class WorkspaceService {
     saveData.sprites = this._spriteComponents.map(spr => spr.Data);
 
     //send data to a save dialog
-    const saveDataStream = `data:text/json;charset=utf-8, ${ encodeURIComponent(JSON.stringify(saveData))}`;
+    const saveDataStream = `data:text/json;charset=utf-8, ${ encodeURIComponent(JSON.stringify(saveData, null, 2))}`;
     let saveDiv:HTMLAnchorElement = document.createElement("a");
     saveDiv.setAttribute("href", saveDataStream);
     saveDiv.setAttribute("download", `${saveName}.sheetr`);

@@ -3755,7 +3755,7 @@ var WorkspaceService = /** @class */ (function () {
         };
         saveData.sprites = this._spriteComponents.map(function (spr) { return spr.Data; });
         //send data to a save dialog
-        var saveDataStream = "data:text/json;charset=utf-8, " + encodeURIComponent(JSON.stringify(saveData));
+        var saveDataStream = "data:text/json;charset=utf-8, " + encodeURIComponent(JSON.stringify(saveData, null, 2));
         var saveDiv = document.createElement("a");
         saveDiv.setAttribute("href", saveDataStream);
         saveDiv.setAttribute("download", saveName + ".sheetr");
