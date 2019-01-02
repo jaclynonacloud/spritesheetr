@@ -35,7 +35,7 @@ export class AppService {
     // this._workspaceManager = new WorkspaceManager(this);
     this._loadManager = new LoadManager();
 
-    this._loadManager.fetchFile("/assets/data/projects/example1.sheetr");
+    // this._loadManager.fetchFile("/assets/data/projects/example1.sheetr");
 
     this._statesService.setState(StatesService.STATE.Spritesheetr);
     this._menusService.setContext(MenusService.CONTEXT.Workarea);

@@ -3048,7 +3048,7 @@ var AppService = /** @class */ (function () {
         //setup managers
         // this._workspaceManager = new WorkspaceManager(this);
         this._loadManager = new __WEBPACK_IMPORTED_MODULE_3__managers_LoadManager__["a" /* LoadManager */]();
-        this._loadManager.fetchFile("/assets/data/projects/example1.sheetr");
+        // this._loadManager.fetchFile("/assets/data/projects/example1.sheetr");
         this._statesService.setState(__WEBPACK_IMPORTED_MODULE_2__states_service__["a" /* StatesService */].STATE.Spritesheetr);
         this._menusService.setContext(__WEBPACK_IMPORTED_MODULE_1__menus_service__["a" /* MenusService */].CONTEXT.Workarea);
         //subscribe to events
