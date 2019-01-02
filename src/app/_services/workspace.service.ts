@@ -75,8 +75,6 @@ export class WorkspaceService {
     this._lastMouseX = 0;
     this._lastMouseY = 0;
 
-    this.clearWorkarea();
-
     this._edgeSprites = {left:null, right:null, top:null, bottom:null};
   }
 
@@ -102,6 +100,8 @@ export class WorkspaceService {
   // WORKAREA
   public addWorkarea(workareaComponent:WorkareaComponent):void {
     this._workareaComponent = workareaComponent;
+
+    this.clearWorkarea();
 
 
     //setup AFTER workarea is assigned
